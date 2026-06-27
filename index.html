@@ -261,7 +261,15 @@ function showCheckin() {
     <button class="btn-ghost" onclick="showDashboard()">Back</button>
   `);
 }
-
+function formatResponse(text) {
+  return text
+    .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\*(.*?)\*/g, '$1')
+    .replace(/\n\n/g, '</p><p>')
+    .replace(/\n/g, '<br>')
+    .replace(/^/, '<p>')
+    .replace(/$/, '</p>');
+}
 async function submitCheckin() {
   const q1 = document.getElementById('q1').value.trim();
   const q2 = document.getElementById('q2').value.trim();
@@ -292,7 +300,7 @@ async function submitCheckin() {
       <span class="wordmark">Stackd</span>
       <h1>Your coach says:</h1>
       <div class="divider"></div>
-      <div class="coach-box">${data.reply}</div>
+      <div class="coach-box">${formatResponse(data.reply)}</div>
       <button class="btn-primary" onclick="showCheckin()">New check-in</button>
       <button class="btn-ghost" onclick="showDashboard()">Back to dashboard</button>
     `);

@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: #0c0c0c;
+  color: #fff;
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+}
+
+.container {
+  width: 100%;
+  max-width: 480px;
+  overflow-y: auto;
+  max-height: 100vh;
+}
+.wordmark {
+  font-size: 38px;
+  font-weight: 800;
+  letter-spacing: -0.04em;
+  color: #ffffff;
+  font-family: 'Inter', sans-serif;
+  margin-bottom: 20px;
+  display: inline-block;
+}
+
+h1 {
+  font-size: 32px;
+  font-weight: 700;
+  color: #fff;
+  line-height: 1.2;
+  letter-spacing: -0.5px;
+  margin-bottom: 12px;
+}
+
+.sub {
+  font-size: 15px;
+  color: #666;
+  line-height: 1.7;
+  margin-bottom: 36px;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 2px;
+  background: #1c1c1c;
+  border-radius: 99px;
+  margin-bottom: 40px;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 2px;
+  background: #E9A84C;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.question-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #E9A84C;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+  display: block;
+}
+
+textarea {
+  width: 100%;
+  background: #141414;
+  border: 1px solid #222;
+  border-radius: 10px;
+  color: #fff;
+  font-size: 15px;
+  font-family: 'Inter', sans-serif;
+  padding: 14px 16px;
+  margin-bottom: 16px;
+  resize: none;
+  height: 110px;
+  outline: none;
+  line-height: 1.6;
+  transition: border-color 0.2s;
+}
+
+textarea:focus { border-color: #E9A84C; }
+textarea::placeholder { color: #333; }
+
+.btn-primary {
+  width: 100%;
+  background: #E9A84C;
+  color: #0c0c0c;
+  border: none;
+  padding: 15px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  letter-spacing: 0.02em;
+  transition: opacity 0.2s;
+  margin-bottom: 10px;
+}
+
+.btn-primary:hover { opacity: 0.88; }
+
+.btn-ghost {
+  width: 100%;
+  background: transparent;
+  color: #555;
+  border: 1px solid #222;
+  padding: 14px;
+  font-size: 14px;
+  font-weight: 500;
+  border-radius: 10px;
+  cursor: pointer;
+  font-family: 'Inter', sans-serif;
+  transition: border-color 0.2s, color 0.2s;
+}
+
+.btn-ghost:hover { border-color: #444; color: #fff; }
+
+.divider {
+  height: 1px;
+  background: #1a1a1a;
+  margin: 28px 0;
+}
+
+.coach-box {
+  background: #111;
+  border: 1px solid #222;
+  border-left: 3px solid #E9A84C;
+  border-radius: 10px;
+  padding: 20px;
+  font-size: 15px;
+  line-height: 1.75;
+  color: #ccc;
+  margin-bottom: 28px;
+}
+
+.checkin-label {
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.12em;
+  color: #555;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  margin-top: 20px;
+  display: block;
+}
+
+.checkin-label:first-of-type { margin-top: 0; }
+
+.spinner {
+  width: 28px;
+  height: 28px;
+  border: 2px solid #222;
+  border-top-color: #E9A84C;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  margin: 0 auto 28px;
+}
+
+@keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div id="app"></div>
+  <script>
+    let answers = {};
+const API_URL = 'https://stackd-coral-two.vercel.app/api/coach';
+
+const questions = [
+  { key: 'project', title: 'What are you building?', ph: 'I am building a...' },
+  { key: 'stage', title: 'Where are you right now?', ph: 'Just started / have some progress / completely stuck...' },
+  { key: 'obstacle', title: 'What is stopping you?', ph: 'My biggest problem is...' },
+  { key: 'goal', title: 'What does success look like in 3 months?', ph: 'In 3 months I want to...' },
+  { key: 'time', title: 'How much time can you dedicate daily?', ph: 'I can dedicate... hours per day' }
+];
+
+function render(html) {
+  document.getElementById('app').innerHTML = html;
+}
+
+function showLanding() {
+  render(`
+    <span class="wordmark">Stackd</span>
+    <h1>Build something real.</h1>
+    <p class="sub">Your daily AI coach for young entrepreneurs who are serious about making progress — not just talking about it.</p>
+    <button class="btn-primary" onclick="showQuestion(0)">Get started</button>
+  `);
+}
+
+function showQuestion(i) {
+  const q = questions[i];
+  const pct = (i / questions.length) * 100;
+  const stepText = `${i + 1} of ${questions.length}`;
+
+  render(`
+    <span class="wordmark">Stackd</span>
+    <div class="progress-bar">
+      <div class="progress-fill" id="pb" style="width:0%"></div>
+    </div>
+    <span class="question-label">Step ${stepText}</span>
+    <h1>${q.title}</h1>
+    <textarea id="ans" placeholder="${q.ph}"></textarea>
+    <button class="btn-primary" onclick="saveAnswer(${i})">Continue</button>
+    ${i > 0 ? `<button class="btn-ghost" onclick="showQuestion(${i - 1})">Back</button>` : ''}
+  `);
+
+  setTimeout(() => {
+    document.getElementById('pb').style.width = pct + '%';
+  }, 50);
+}
+
+function saveAnswer(i) {
+  const val = document.getElementById('ans').value.trim();
+  if (!val) return;
+  answers[questions[i].key] = val;
+  if (i < questions.length - 1) {
+    showQuestion(i + 1);
+  } else {
+    showDashboard();
+  }
+}
+
+function showDashboard() {
+  render(`
+    <span class="wordmark">Stackd</span>
+    <h1>You are set up.</h1>
+    <p class="sub">Your coach knows your project. Check in every day — consistency is the whole game.</p>
+    <div class="progress-bar"><div class="progress-fill" style="width:100%"></div></div>
+    <button class="btn-primary" onclick="showCheckin()">Start daily check-in</button>
+  `);
+}
+
+function showCheckin() {
+  render(`
+    <span class="wordmark">Stackd</span>
+    <h1>Daily check-in</h1>
+    <p class="sub" style="margin-bottom:28px;">Honest answers only. Your coach will know if you are vague.</p>
+    <span class="checkin-label">What did you do yesterday?</span>
+    <textarea id="q1" placeholder="Yesterday I..."></textarea>
+    <span class="checkin-label">What is blocking you right now?</span>
+    <textarea id="q2" placeholder="I am blocked by..."></textarea>
+    <span class="checkin-label">What is your one thing for today?</span>
+    <textarea id="q3" placeholder="Today I will..."></textarea>
+    <button class="btn-primary" onclick="submitCheckin()">Talk to my coach</button>
+    <button class="btn-ghost" onclick="showDashboard()">Back</button>
+  `);
+}
+
+async function submitCheckin() {
+  const q1 = document.getElementById('q1').value.trim();
+  const q2 = document.getElementById('q2').value.trim();
+  const q3 = document.getElementById('q3').value.trim();
+  if (!q1 || !q2 || !q3) return;
+
+  render(`
+    <span class="wordmark">Stackd</span>
+    <div class="spinner"></div>
+    <h1>Your coach is thinking...</h1>
+    <p class="sub">Give it a few seconds.</p>
+  `);
+
+  const context = `Project: ${answers.project}\nStage: ${answers.stage}\nObstacle: ${answers.obstacle}\nGoal: ${answers.goal}\nDaily time: ${answers.time}`;
+  const checkin = `Yesterday: ${q1}\nBlocked by: ${q2}\nOne thing today: ${q3}`;
+
+  try {
+    const response = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ context, checkin })
+    });
+
+    const data = await response.json();
+    if (data.error) throw new Error(data.error);
+
+    render(`
+      <span class="wordmark">Stackd</span>
+      <h1>Your coach says:</h1>
+      <div class="divider"></div>
+      <div class="coach-box">${data.reply}</div>
+      <button class="btn-primary" onclick="showCheckin()">New check-in</button>
+      <button class="btn-ghost" onclick="showDashboard()">Back to dashboard</button>
+    `);
+
+  } catch (e) {
+    render(`
+      <span class="wordmark">Stackd</span>
+      <h1>Something went wrong.</h1>
+      <p class="sub">${e.message}</p>
+      <button class="btn-primary" onclick="showCheckin()">Try again</button>
+    `);
+  }
+}
+
+showLanding();
+  </script>
+</body>
+</html>

@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd — Build something real.</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0c0c0c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      overflow-x: hidden;
+    }
+
+    /* NAV */
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 24px 48px;
+      border-bottom: 1px solid #1a1a1a;
+      position: sticky;
+      top: 0;
+      background: #0c0c0c;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .nav-logo span { color: #E9A84C; }
+
+    .nav-links {
+      display: flex;
+      gap: 36px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #666;
+      text-decoration: none;
+      font-size: 14px;
+      font-weight: 500;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+
+    .nav-cta {
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 10px 22px;
+      font-size: 14px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+    }
+
+    .nav-cta:hover { opacity: 0.88; }
+
+    /* HERO */
+    .hero {
+      min-height: 90vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 80px 24px;
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #1a1a1a;
+      color: #E9A84C;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      padding: 6px 14px;
+      border-radius: 99px;
+      margin-bottom: 32px;
+      border: 1px solid #2a2a2a;
+    }
+
+    .hero h1 {
+      font-size: 80px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    .hero p {
+      font-size: 18px;
+      color: #666;
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 40px;
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .btn-primary {
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 15px 32px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { opacity: 0.88; }
+
+    .btn-ghost {
+      background: transparent;
+      color: #666;
+      border: 1px solid #2a2a2a;
+      padding: 15px 32px;
+      font-size: 15px;
+      font-weight: 500;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-ghost:hover { color: #fff; border-color: #444; }
+
+    /* SECTION */
+    section {
+      padding: 100px 24px;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    .section-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #E9A84C;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .section-title {
+      font-size: 42px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      line-height: 1.1;
+      margin-bottom: 16px;
+      max-width: 560px;
+    }
+
+    .section-sub {
+      font-size: 16px;
+      color: #666;
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 60px;
+    }
+
+    /* FEATURES */
+    .features {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 20px;
+    }
+
+    .feature-card {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 14px;
+      padding: 28px;
+      transition: border-color 0.2s;
+    }
+
+    .feature-card:hover { border-color: #E9A84C; }
+
+    .feature-icon {
+      width: 40px;
+      height: 40px;
+      background: #1a1a1a;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 16px;
+      font-size: 20px;
+    }
+
+    .feature-card h3 {
+      font-size: 16px;
+      font-weight: 700;
+      margin-bottom: 8px;
+      letter-spacing: -0.02em;
+    }
+
+    .feature-card p {
+      font-size: 14px;
+      color: #555;
+      line-height: 1.6;
+    }
+
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: #1a1a1a;
+      max-width: 960px;
+      margin: 0 auto;
+    }
+
+    /* PRICING */
+    .pricing-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 20px;
+      max-width: 640px;
+    }
+
+    .pricing-card {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 14px;
+      padding: 32px;
+    }
+
+    .pricing-card.featured {
+      border-color: #E9A84C;
+    }
+
+    .pricing-label {
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #555;
+      text-transform: uppercase;
+      margin-bottom: 16px;
+      display: block;
+    }
+
+    .pricing-card.featured .pricing-label {
+      color: #E9A84C;
+    }
+
+    .pricing-price {
+      font-size: 36px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      margin-bottom: 4px;
+    }
+
+    .pricing-per {
+      font-size: 13px;
+      color: #555;
+      margin-bottom: 24px;
+    }
+
+    .pricing-features {
+      list-style: none;
+      margin-bottom: 28px;
+    }
+
+    .pricing-features li {
+      font-size: 14px;
+      color: #888;
+      padding: 6px 0;
+      border-bottom: 1px solid #1a1a1a;
+      line-height: 1.5;
+    }
+
+    .pricing-features li:last-child { border-bottom: none; }
+
+    .trial-note {
+      font-size: 14px;
+      color: #555;
+      margin-top: 24px;
+      text-align: center;
+    }
+
+    .trial-note span { color: #E9A84C; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid #1a1a1a;
+      padding: 40px 48px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+    }
+
+    .footer-logo span { color: #E9A84C; }
+
+    footer p {
+      font-size: 13px;
+      color: #444;
+    }
+  </style>
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-logo">Stack<span>d</span></div>
+    <ul class="nav-links">
+      <li><a href="#features">Meet Stackd</a></li>
+      <li><a href="#pricing">Pricing</a></li>
+      <li><a href="#about">About</a></li>
+    </ul>
+    <button class="nav-cta" onclick="window.location.href='app.html'">Get started</button>
+  </nav>
+
+  <!-- HERO -->
+  <div class="hero">
+    <div class="hero-badge">Your AI Mentor is ready</div>
+    <h1>Build something real.</h1>
+    <p>Feeling stuck, unmotivated or unclear where you are heading? Stackd is your daily progress tracker and AI mentor.</p>
+    <div class="hero-buttons">
+      <a href="app.html" class="btn-primary">Get started for free</a>
+      <a href="#features" class="btn-ghost">See how it works</a>
+    </div>
+  </div>
+
+  <div class="divider"></div>
+
+  <!-- FEATURES -->
+  <section id="features">
+    <span class="section-label">Meet Stackd</span>
+    <h2 class="section-title">Everything you need to stay on track.</h2>
+    <p class="section-sub">No fluff. No generic advice. Just a system that keeps you moving forward every single day.</p>
+    <div class="features">
+      <div class="feature-card">
+        <div class="feature-icon">✅</div>
+        <h3>Daily Check-ins</h3>
+        <p>Three questions every morning that set your direction for the day. Show up, answer honestly, get moving.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">🤖</div>
+        <h3>24/7 AI Mentor</h3>
+        <p>Your coach knows your project inside out. Ask anything, anytime. Get specific answers, not generic advice.</p>
+      </div>
+      <div class="feature-card">
+        <div class="feature-icon">📈</div>
+        <h3>Progress Tracking</h3>
+        <p>See your consistency streak and weekly progress. Visual proof that you are building, not just dreaming.</p>
+      </div>
+    </div>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- PRICING -->
+  <section id="pricing">
+    <span class="section-label">Pricing</span>
+    <h2 class="section-title">Simple pricing. No surprises.</h2>
+    <p class="section-sub">Start free for 7 days. Cancel anytime.</p>
+    <div class="pricing-grid">
+      <div class="pricing-card">
+        <span class="pricing-label">Monthly</span>
+        <div class="pricing-price">$9.99</div>
+        <div class="pricing-per">per month</div>
+        <ul class="pricing-features">
+          <li>Daily check-ins with AI coach</li>
+          <li>24/7 mentor chat</li>
+          <li>Progress tracking</li>
+          <li>7-day free trial</li>
+        </ul>
+        <a href="app.html" class="btn-primary" style="text-align:center; display:block;">Start free trial</a>
+      </div>
+      <div class="pricing-card featured">
+        <span class="pricing-label">Annual — 33% off</span>
+        <div class="pricing-price">$6.66</div>
+        <div class="pricing-per">per month, $79.99 billed yearly</div>
+        <ul class="pricing-features">
+          <li>Daily check-ins with AI coach</li>
+          <li>24/7 mentor chat</li>
+          <li>Progress tracking</li>
+          <li>7-day free trial</li>
+        </ul>
+        <a href="app.html" class="btn-primary" style="text-align:center; display:block;">Start free trial</a>
+      </div>
+    </div>
+    <p class="trial-note">Try Stackd free for 7 days. <span>No credit card required.</span></p>
+  </section>
+
+  <div class="divider"></div>
+
+  <!-- FOOTER -->
+  <footer id="about">
+    <div class="footer-logo">Stack<span>d</span></div>
+    <p>Built for young entrepreneurs who are serious about building.</p>
+    <p>© 2025 Stackd</p>
+  </footer>
+
+</body>
+</html>

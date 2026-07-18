@@ -8,7 +8,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
-
     html { scroll-behavior: smooth; }
 
     body {
@@ -18,13 +17,30 @@
       overflow-x: hidden;
     }
 
+    /* FADE IN ANIMATIONS */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.25s; }
+    .delay-3 { transition-delay: 0.4s; }
+    .delay-4 { transition-delay: 0.55s; }
+
     /* NAV */
     nav {
       display: flex;
       align-items: center;
       justify-content: space-between;
       padding: 28px 64px;
-      border-bottom: 1px solid #e8e8e8;
+      border-bottom: 2px solid #0c0c0c;
       position: sticky;
       top: 0;
       background: #ffffff;
@@ -47,14 +63,14 @@
     }
 
     .nav-links a {
-      color: #888;
+      color: #0c0c0c;
       text-decoration: none;
-      font-size: 16px;
-      font-weight: 500;
+      font-size: 17px;
+      font-weight: 600;
       transition: color 0.2s;
     }
 
-    .nav-links a:hover { color: #0c0c0c; }
+    .nav-links a:hover { color: #E9A84C; }
 
     .nav-buttons {
       display: flex;
@@ -65,7 +81,7 @@
     .btn-signin {
       background: transparent;
       color: #0c0c0c;
-      border: 1px solid #ddd;
+      border: 1.5px solid #0c0c0c;
       padding: 12px 24px;
       font-size: 15px;
       font-weight: 600;
@@ -75,7 +91,7 @@
       transition: all 0.2s;
     }
 
-    .btn-signin:hover { border-color: #0c0c0c; }
+    .btn-signin:hover { background: #0c0c0c; color: #fff; }
 
     .btn-signup {
       background: #0c0c0c;
@@ -105,15 +121,45 @@
       overflow: hidden;
     }
 
-    .hero-bg {
+    /* BACKGROUND ORBS */
+    .orb {
       position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      width: 800px;
-      height: 800px;
-      background: radial-gradient(circle, rgba(233,168,76,0.12) 0%, rgba(233,168,76,0) 70%);
+      border-radius: 50%;
+      filter: blur(80px);
       pointer-events: none;
+      animation: float 8s ease-in-out infinite;
+    }
+
+    .orb-1 {
+      width: 600px;
+      height: 600px;
+      background: rgba(233, 168, 76, 0.15);
+      top: -100px;
+      left: -100px;
+      animation-delay: 0s;
+    }
+
+    .orb-2 {
+      width: 500px;
+      height: 500px;
+      background: rgba(233, 168, 76, 0.1);
+      top: 100px;
+      right: -150px;
+      animation-delay: 2s;
+    }
+
+    .orb-3 {
+      width: 400px;
+      height: 400px;
+      background: rgba(233, 168, 76, 0.08);
+      bottom: -50px;
+      left: 30%;
+      animation-delay: 4s;
+    }
+
+    @keyframes float {
+      0%, 100% { transform: translateY(0px) scale(1); }
+      50% { transform: translateY(-30px) scale(1.05); }
     }
 
     .hero-badge {
@@ -128,6 +174,8 @@
       border-radius: 99px;
       margin-bottom: 36px;
       border: 1px solid #fde8bc;
+      position: relative;
+      z-index: 1;
     }
 
     .hero h1 {
@@ -138,6 +186,8 @@
       margin-bottom: 28px;
       max-width: 800px;
       color: #0c0c0c;
+      position: relative;
+      z-index: 1;
     }
 
     .hero p {
@@ -146,6 +196,8 @@
       line-height: 1.7;
       max-width: 520px;
       margin-bottom: 48px;
+      position: relative;
+      z-index: 1;
     }
 
     .hero-buttons {
@@ -153,6 +205,8 @@
       gap: 14px;
       flex-wrap: wrap;
       justify-content: center;
+      position: relative;
+      z-index: 1;
     }
 
     .btn-primary {
@@ -175,7 +229,7 @@
     .btn-ghost {
       background: transparent;
       color: #888;
-      border: 1px solid #ddd;
+      border: 1.5px solid #ddd;
       padding: 18px 40px;
       font-size: 17px;
       font-weight: 500;
@@ -433,11 +487,14 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="hero-bg"></div>
-    <div class="hero-badge">Your AI Mentor is ready</div>
-    <h1>Build something real.</h1>
-    <p>Feeling stuck, unmotivated or unclear where you are heading? Stackd is your daily progress tracker and AI mentor.</p>
-    <div class="hero-buttons">
+    <div class="orb orb-1"></div>
+    <div class="orb orb-2"></div>
+    <div class="orb orb-3"></div>
+
+    <div class="hero-badge fade-in delay-1">Your AI Mentor is ready</div>
+    <h1 class="fade-in delay-2">Build something real.</h1>
+    <p class="fade-in delay-3">Feeling stuck, unmotivated or unclear where you are heading? Stackd is your daily progress tracker and AI mentor.</p>
+    <div class="hero-buttons fade-in delay-4">
       <a href="app.html" class="btn-primary">Get started for free</a>
       <a href="#features" onclick="smoothScroll(event,'features')" class="btn-ghost">See how it works</a>
     </div>
@@ -447,21 +504,21 @@
 
   <!-- FEATURES -->
   <section id="features">
-    <span class="section-label">Meet Stackd</span>
-    <h2 class="section-title">Everything you need to stay on track.</h2>
-    <p class="section-sub">No fluff. No generic advice. Just a system that keeps you moving forward every single day.</p>
+    <span class="section-label fade-in">Meet Stackd</span>
+    <h2 class="section-title fade-in">Everything you need to stay on track.</h2>
+    <p class="section-sub fade-in">No fluff. No generic advice. Just a system that keeps you moving forward every single day.</p>
     <div class="features">
-      <div class="feature-card">
+      <div class="feature-card fade-in delay-1">
         <div class="feature-icon">✅</div>
         <h3>Daily Check-ins</h3>
         <p>Three questions every morning that set your direction for the day. Show up, answer honestly, get moving.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card fade-in delay-2">
         <div class="feature-icon">🤖</div>
         <h3>24/7 AI Mentor</h3>
         <p>Your coach knows your project inside out. Ask anything, anytime. Get specific answers, not generic advice.</p>
       </div>
-      <div class="feature-card">
+      <div class="feature-card fade-in delay-3">
         <div class="feature-icon">📈</div>
         <h3>Progress Tracking</h3>
         <p>See your consistency streak and weekly progress. Visual proof that you are building, not just dreaming.</p>
@@ -473,11 +530,11 @@
 
   <!-- PRICING -->
   <section id="pricing">
-    <span class="section-label">Pricing</span>
-    <h2 class="section-title">Simple pricing. No surprises.</h2>
-    <p class="section-sub">Start free for 7 days. Cancel anytime.</p>
+    <span class="section-label fade-in">Pricing</span>
+    <h2 class="section-title fade-in">Simple pricing. No surprises.</h2>
+    <p class="section-sub fade-in">Start free for 7 days. Cancel anytime.</p>
     <div class="pricing-grid">
-      <div class="pricing-card">
+      <div class="pricing-card fade-in delay-1">
         <span class="pricing-label">Monthly</span>
         <div class="pricing-price">$9.99</div>
         <div class="pricing-per">per month</div>
@@ -489,7 +546,7 @@
         </ul>
         <a href="app.html" class="btn-dark">Start free trial</a>
       </div>
-      <div class="pricing-card featured">
+      <div class="pricing-card featured fade-in delay-2">
         <span class="pricing-label">Annual — 33% off</span>
         <div class="pricing-price">$6.66</div>
         <div class="pricing-per">per month, $79.99 billed yearly</div>
@@ -502,7 +559,7 @@
         <a href="app.html" class="btn-amber">Start free trial</a>
       </div>
     </div>
-    <p class="trial-note">Try Stackd free for 7 days. <span>No credit card required.</span></p>
+    <p class="trial-note fade-in">Try Stackd free for 7 days. <span>No credit card required.</span></p>
   </section>
 
   <div class="divider"></div>
@@ -519,6 +576,24 @@
       e.preventDefault();
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
+
+    // Fade in on scroll
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) {
+          entry.target.classList.add('visible');
+        }
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    // Trigger hero animations on load
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.hero .fade-in').forEach(el => {
+        el.classList.add('visible');
+      });
+    });
   </script>
 
 </body>

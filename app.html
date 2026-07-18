@@ -601,9 +601,24 @@
       { key: 'today', label: 'What is your one thing for today?', ph: 'Today I will...' }
     ];
 
-    function startCheckin() {
-      checkinAnswers = {};
-      showCheckinQuestion(0);
+   function startCheckin() {
+  const lastCheckin = localStorage.getItem('stackd_last_checkin');
+  const today = new Date().toDateString();
+  
+  if (lastCheckin === today) {
+    render(`
+      <div class="checkin-screen">
+        <span class="screen-tag">Daily Check-in</span>
+        <h1 class="screen-title small">Already done today.</h1>
+        <p class="screen-sub">You have completed your check-in for today. Come back tomorrow and keep the streak going.</p>
+        <button class="btn-primary" onclick="showCheckinHome()">Back to home</button>
+      </div>
+    `);
+    return;
+  }
+  
+  checkinAnswers = {};
+  showCheckinQuestion(0);
     }
 
     function showCheckinQuestion(i) {
@@ -659,6 +674,7 @@
 
         streak++;
         localStorage.setItem('stackd_streak', streak);
+        localStorage.setItem('stackd_last_checkin', new Date().toDateString());
         document.getElementById('streakNumber').textContent = streak;
 
         render(`

@@ -604,7 +604,6 @@
     function startCheckin() {
       checkinAnswers = {};
       showCheckinQuestion(0);
-      <h1 class="screen-title small">${q.label}</h1>
     }
 
     function showCheckinQuestion(i) {
@@ -616,7 +615,7 @@
             <div class="progress-fill" id="pb" style="width:0%"></div>
           </div>
           <span class="screen-tag">Question ${i+1} of ${checkinQuestions.length}</span>
-          <h1 class="screen-title">${q.label}</h1>
+         <h1 class="screen-title small">${q.label}</h1>
           <textarea id="cans" placeholder="${q.ph}"></textarea>
           <button class="btn-primary" onclick="saveCheckinAnswer(${i})">Continue</button>
           ${i > 0 ? `<button class="btn-ghost" onclick="showCheckinQuestion(${i-1})">Back</button>` : ''}
@@ -641,7 +640,7 @@
       render(`
         <div class="checkin-screen">
           <div class="spinner"></div>
-          <h1 class="screen-title">Your coach is thinking...</h1>
+          <h1 class="screen-title small">Your coach is thinking...</h1>
           <p class="screen-sub">Give it a few seconds.</p>
         </div>
       `);
@@ -665,7 +664,7 @@
         render(`
           <div class="checkin-screen">
             <span class="screen-tag">Your coach says</span>
-            <h1 class="screen-title">Here is your coaching.</h1>
+           <h1 class="screen-title small">Here is your coaching.</h1>
             <div class="coach-box">${formatResponse(data.reply)}</div>
             <button class="btn-primary" onclick="startCheckin()">New check-in</button>
             <button class="btn-ghost" onclick="showCheckinHome()">Back to home</button>

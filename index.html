@@ -11,13 +11,13 @@
     html { scroll-behavior: smooth; }
 
     body {
-      background: #ffffff;
-      color: #0c0c0c;
+      background: linear-gradient(to top, #1a1a1a 0%, #0c0c0c 100%);
+      color: #fff;
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
+      min-height: 100vh;
     }
 
-    /* FADE IN ANIMATIONS */
     .fade-in {
       opacity: 0;
       transform: translateY(24px);
@@ -35,19 +35,23 @@
     .delay-4 { transition-delay: 0.55s; }
 
     /* NAV */
-   nav {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 28px 64px;
-  border-bottom: 1px solid #e8e8e8;
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 64px;
+      border-bottom: 1px solid #222;
+      position: sticky;
+      top: 0;
+      background: #0c0c0c;
+      z-index: 100;
     }
 
     .nav-logo {
       font-size: 28px;
       font-weight: 800;
       letter-spacing: -0.04em;
-      color: #0c0c0c;
+      color: #fff;
     }
 
     .nav-logo span { color: #E9A84C; }
@@ -59,14 +63,14 @@
     }
 
     .nav-links a {
-      color: #0c0c0c;
+      color: #888;
       text-decoration: none;
       font-size: 17px;
       font-weight: 600;
       transition: color 0.2s;
     }
 
-    .nav-links a:hover { color: #E9A84C; }
+    .nav-links a:hover { color: #fff; }
 
     .nav-buttons {
       display: flex;
@@ -76,8 +80,8 @@
 
     .btn-signin {
       background: transparent;
-      color: #0c0c0c;
-      border: 1.5px solid #0c0c0c;
+      color: #fff;
+      border: 1px solid #333;
       padding: 12px 24px;
       font-size: 15px;
       font-weight: 600;
@@ -87,11 +91,11 @@
       transition: all 0.2s;
     }
 
-    .btn-signin:hover { background: #0c0c0c; color: #fff; }
+    .btn-signin:hover { border-color: #fff; }
 
     .btn-signup {
-      background: #0c0c0c;
-      color: #fff;
+      background: #fff;
+      color: #0c0c0c;
       border: none;
       padding: 12px 24px;
       font-size: 15px;
@@ -102,7 +106,7 @@
       transition: opacity 0.2s;
     }
 
-    .btn-signup:hover { opacity: 0.8; }
+    .btn-signup:hover { opacity: 0.85; }
 
     /* HERO */
     .hero {
@@ -117,59 +121,9 @@
       overflow: hidden;
     }
 
-    /* BACKGROUND ORBS */
-    .orb {
-      position: absolute;
-      border-radius: 50%;
-      filter: blur(80px);
-      pointer-events: none;
-      animation: float 8s ease-in-out infinite;
-    }
-
-   .orb {
-  position: absolute;
-  border-radius: 50%;
-  filter: blur(120px);
-  pointer-events: none;
-  animation: float 10s ease-in-out infinite;
-}
-
-.orb-1 {
-  width: 900px;
-  height: 900px;
-  background: rgba(233, 168, 76, 0.2);
-  top: -300px;
-  left: 50%;
-  transform: translateX(-50%);
-  animation-delay: 0s;
-}
-
-.orb-2 {
-  width: 600px;
-  height: 600px;
-  background: rgba(233, 168, 76, 0.12);
-  top: 200px;
-  right: -200px;
-  animation-delay: 3s;
-}
-
-.orb-3 {
-  width: 500px;
-  height: 500px;
-  background: rgba(233, 168, 76, 0.08);
-  top: 100px;
-  left: -150px;
-  animation-delay: 6s;
-    }
-
-    @keyframes float {
-      0%, 100% { transform: translateY(0px) scale(1); }
-      50% { transform: translateY(-30px) scale(1.05); }
-    }
-
     .hero-badge {
       display: inline-block;
-      background: #fff8ee;
+      background: rgba(233,168,76,0.1);
       color: #E9A84C;
       font-size: 13px;
       font-weight: 700;
@@ -178,7 +132,7 @@
       padding: 8px 18px;
       border-radius: 99px;
       margin-bottom: 36px;
-      border: 1px solid #fde8bc;
+      border: 1px solid rgba(233,168,76,0.25);
       position: relative;
       z-index: 1;
     }
@@ -190,14 +144,14 @@
       line-height: 1;
       margin-bottom: 28px;
       max-width: 800px;
-      color: #0c0c0c;
+      color: #fff;
       position: relative;
       z-index: 1;
     }
 
     .hero p {
       font-size: 20px;
-      color: #888;
+      color: #666;
       line-height: 1.7;
       max-width: 520px;
       margin-bottom: 48px;
@@ -234,7 +188,7 @@
     .btn-ghost {
       background: transparent;
       color: #888;
-      border: 1.5px solid #ddd;
+      border: 1px solid #333;
       padding: 18px 40px;
       font-size: 17px;
       font-weight: 500;
@@ -246,12 +200,12 @@
       display: inline-block;
     }
 
-    .btn-ghost:hover { color: #0c0c0c; border-color: #0c0c0c; }
+    .btn-ghost:hover { color: #fff; border-color: #666; }
 
     /* DIVIDER */
     .divider {
       height: 1px;
-      background: #f0f0f0;
+      background: #1e1e1e;
       max-width: 1100px;
       margin: 0 auto;
     }
@@ -280,12 +234,12 @@
       line-height: 1.1;
       margin-bottom: 18px;
       max-width: 600px;
-      color: #0c0c0c;
+      color: #fff;
     }
 
     .section-sub {
       font-size: 18px;
-      color: #888;
+      color: #666;
       line-height: 1.7;
       max-width: 500px;
       margin-bottom: 64px;
@@ -299,8 +253,8 @@
     }
 
     .feature-card {
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
+      background: #111;
+      border: 1px solid #1e1e1e;
       border-radius: 16px;
       padding: 32px;
       transition: border-color 0.2s, box-shadow 0.2s;
@@ -308,20 +262,20 @@
 
     .feature-card:hover {
       border-color: #E9A84C;
-      box-shadow: 0 4px 24px rgba(233,168,76,0.1);
+      box-shadow: 0 4px 32px rgba(233,168,76,0.08);
     }
 
     .feature-icon {
       width: 48px;
       height: 48px;
-      background: #fff8ee;
+      background: rgba(233,168,76,0.1);
       border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
       margin-bottom: 20px;
       font-size: 22px;
-      border: 1px solid #fde8bc;
+      border: 1px solid rgba(233,168,76,0.2);
     }
 
     .feature-card h3 {
@@ -329,12 +283,12 @@
       font-weight: 700;
       margin-bottom: 10px;
       letter-spacing: -0.02em;
-      color: #0c0c0c;
+      color: #fff;
     }
 
     .feature-card p {
       font-size: 15px;
-      color: #888;
+      color: #666;
       line-height: 1.6;
     }
 
@@ -347,23 +301,21 @@
     }
 
     .pricing-card {
-      background: #fafafa;
-      border: 1px solid #f0f0f0;
+      background: #111;
+      border: 1px solid #1e1e1e;
       border-radius: 16px;
       padding: 36px;
     }
 
     .pricing-card.featured {
-      background: #0c0c0c;
-      border-color: #0c0c0c;
-      color: #fff;
+      border-color: #E9A84C;
     }
 
     .pricing-label {
       font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.12em;
-      color: #aaa;
+      color: #555;
       text-transform: uppercase;
       margin-bottom: 20px;
       display: block;
@@ -376,14 +328,12 @@
       font-weight: 800;
       letter-spacing: -0.03em;
       margin-bottom: 4px;
-      color: #0c0c0c;
+      color: #fff;
     }
-
-    .pricing-card.featured .pricing-price { color: #fff; }
 
     .pricing-per {
       font-size: 14px;
-      color: #aaa;
+      color: #555;
       margin-bottom: 28px;
     }
 
@@ -394,23 +344,18 @@
 
     .pricing-features li {
       font-size: 15px;
-      color: #888;
+      color: #666;
       padding: 8px 0;
-      border-bottom: 1px solid #f0f0f0;
+      border-bottom: 1px solid #1e1e1e;
       line-height: 1.5;
-    }
-
-    .pricing-card.featured .pricing-features li {
-      color: #aaa;
-      border-bottom-color: #1e1e1e;
     }
 
     .pricing-features li:last-child { border-bottom: none; }
 
     .btn-dark {
       width: 100%;
-      background: #0c0c0c;
-      color: #fff;
+      background: #fff;
+      color: #0c0c0c;
       border: none;
       padding: 16px;
       font-size: 15px;
@@ -424,7 +369,7 @@
       transition: opacity 0.2s;
     }
 
-    .btn-dark:hover { opacity: 0.8; }
+    .btn-dark:hover { opacity: 0.85; }
 
     .btn-amber {
       width: 100%;
@@ -447,7 +392,7 @@
 
     .trial-note {
       font-size: 15px;
-      color: #aaa;
+      color: #555;
       margin-top: 28px;
     }
 
@@ -455,7 +400,7 @@
 
     /* FOOTER */
     footer {
-      border-top: 1px solid #f0f0f0;
+      border-top: 1px solid #1e1e1e;
       padding: 48px 64px;
       display: flex;
       align-items: center;
@@ -466,12 +411,12 @@
       font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.03em;
-      color: #0c0c0c;
+      color: #fff;
     }
 
     .footer-logo span { color: #E9A84C; }
 
-    footer p { font-size: 14px; color: #aaa; }
+    footer p { font-size: 14px; color: #444; }
   </style>
 </head>
 <body>
@@ -492,10 +437,6 @@
 
   <!-- HERO -->
   <div class="hero">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-
     <div class="hero-badge fade-in delay-1">Your AI Mentor is ready</div>
     <h1 class="fade-in delay-2">Build something real.</h1>
     <p class="fade-in delay-3">Feeling stuck, unmotivated or unclear where you are heading? Stackd is your daily progress tracker and AI mentor.</p>
@@ -582,7 +523,6 @@
       document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
     }
 
-    // Fade in on scroll
     const observer = new IntersectionObserver((entries) => {
       entries.forEach(entry => {
         if (entry.isIntersecting) {
@@ -593,7 +533,6 @@
 
     document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
-    // Trigger hero animations on load
     window.addEventListener('load', () => {
       document.querySelectorAll('.hero .fade-in').forEach(el => {
         el.classList.add('visible');

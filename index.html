@@ -35,16 +35,12 @@
     .delay-4 { transition-delay: 0.55s; }
 
     /* NAV */
-    nav {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 28px 64px;
-      border-bottom: 2px solid #0c0c0c;
-      position: sticky;
-      top: 0;
-      background: #ffffff;
-      z-index: 100;
+   nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 28px 64px;
+  border-bottom: 1px solid #e8e8e8;
     }
 
     .nav-logo {
@@ -130,31 +126,40 @@
       animation: float 8s ease-in-out infinite;
     }
 
-    .orb-1 {
-      width: 600px;
-      height: 600px;
-      background: rgba(233, 168, 76, 0.15);
-      top: -100px;
-      left: -100px;
-      animation-delay: 0s;
-    }
+   .orb {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(120px);
+  pointer-events: none;
+  animation: float 10s ease-in-out infinite;
+}
 
-    .orb-2 {
-      width: 500px;
-      height: 500px;
-      background: rgba(233, 168, 76, 0.1);
-      top: 100px;
-      right: -150px;
-      animation-delay: 2s;
-    }
+.orb-1 {
+  width: 900px;
+  height: 900px;
+  background: rgba(233, 168, 76, 0.2);
+  top: -300px;
+  left: 50%;
+  transform: translateX(-50%);
+  animation-delay: 0s;
+}
 
-    .orb-3 {
-      width: 400px;
-      height: 400px;
-      background: rgba(233, 168, 76, 0.08);
-      bottom: -50px;
-      left: 30%;
-      animation-delay: 4s;
+.orb-2 {
+  width: 600px;
+  height: 600px;
+  background: rgba(233, 168, 76, 0.12);
+  top: 200px;
+  right: -200px;
+  animation-delay: 3s;
+}
+
+.orb-3 {
+  width: 500px;
+  height: 500px;
+  background: rgba(233, 168, 76, 0.08);
+  top: 100px;
+  left: -150px;
+  animation-delay: 6s;
     }
 
     @keyframes float {

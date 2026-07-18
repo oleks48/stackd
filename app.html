@@ -23,20 +23,20 @@
     .top-nav {
       display: flex;
       align-items: center;
-      padding: 0 24px;
-      height: 56px;
+      padding: 0 32px;
+      height: 64px;
       border-bottom: 1px solid #1e1e1e;
       background: #0c0c0c;
       flex-shrink: 0;
-      gap: 8px;
+      gap: 4px;
     }
 
     .nav-logo {
-      font-size: 20px;
+      font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.04em;
       color: #fff;
-      margin-right: 24px;
+      margin-right: 32px;
     }
 
     .nav-logo span { color: #E9A84C; }
@@ -45,8 +45,8 @@
       background: transparent;
       color: #555;
       border: none;
-      padding: 8px 16px;
-      font-size: 14px;
+      padding: 10px 20px;
+      font-size: 15px;
       font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
@@ -66,9 +66,9 @@
 
     /* SIDEBAR */
     .sidebar {
-      width: 200px;
+      width: 220px;
       border-right: 1px solid #1e1e1e;
-      padding: 20px 12px;
+      padding: 24px 14px;
       display: flex;
       flex-direction: column;
       gap: 4px;
@@ -78,10 +78,10 @@
     .sidebar-item {
       display: flex;
       align-items: center;
-      gap: 10px;
-      padding: 10px 12px;
+      gap: 12px;
+      padding: 12px 14px;
       border-radius: 8px;
-      font-size: 13px;
+      font-size: 14px;
       font-weight: 500;
       color: #555;
       cursor: pointer;
@@ -95,20 +95,19 @@
 
     .sidebar-item:hover { color: #fff; background: #1a1a1a; }
     .sidebar-item.active { color: #fff; background: #1a1a1a; }
-
-    .sidebar-icon { font-size: 16px; }
+    .sidebar-icon { font-size: 17px; }
 
     .streak-box {
       background: #111;
       border: 1px solid #1e1e1e;
-      border-radius: 10px;
-      padding: 12px;
-      margin: 8px 0;
+      border-radius: 12px;
+      padding: 16px;
+      margin: 10px 0;
       text-align: center;
     }
 
     .streak-number {
-      font-size: 32px;
+      font-size: 40px;
       font-weight: 800;
       color: #E9A84C;
       letter-spacing: -0.03em;
@@ -118,16 +117,16 @@
     .streak-label {
       font-size: 11px;
       color: #555;
-      margin-top: 4px;
-      font-weight: 500;
-      letter-spacing: 0.05em;
+      margin-top: 6px;
+      font-weight: 600;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
     .sidebar-divider {
       height: 1px;
       background: #1e1e1e;
-      margin: 8px 0;
+      margin: 10px 0;
     }
 
     .sidebar-bottom {
@@ -137,58 +136,67 @@
       gap: 4px;
     }
 
-    /* MAIN CONTENT */
+    /* MAIN */
     .main {
       flex: 1;
       overflow-y: auto;
-      padding: 40px;
       display: flex;
       flex-direction: column;
     }
 
-    /* DAILY CHECK-IN */
+    /* DAILY CHECK-IN — centered like landing page */
     .checkin-screen {
-      max-width: 560px;
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 60px 40px;
+      max-width: 600px;
       margin: 0 auto;
       width: 100%;
     }
 
     .screen-tag {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #E9A84C;
       text-transform: uppercase;
-      margin-bottom: 12px;
+      margin-bottom: 16px;
       display: block;
     }
 
     .screen-title {
-      font-size: 32px;
+      font-size: 42px;
       font-weight: 800;
       letter-spacing: -0.03em;
-      margin-bottom: 8px;
+      margin-bottom: 12px;
+      line-height: 1.1;
     }
 
     .screen-sub {
-      font-size: 15px;
+      font-size: 17px;
       color: #555;
-      line-height: 1.6;
-      margin-bottom: 32px;
+      line-height: 1.7;
+      margin-bottom: 40px;
+      max-width: 440px;
     }
 
     .btn-primary {
       background: #E9A84C;
       color: #0c0c0c;
       border: none;
-      padding: 14px 32px;
-      font-size: 15px;
+      padding: 16px 40px;
+      font-size: 16px;
       font-weight: 700;
       border-radius: 10px;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: opacity 0.2s;
       display: inline-block;
+      width: 100%;
     }
 
     .btn-primary:hover { opacity: 0.88; }
@@ -197,16 +205,17 @@
       background: transparent;
       color: #555;
       border: 1px solid #222;
-      padding: 14px 32px;
+      padding: 16px 40px;
       font-size: 15px;
       font-weight: 500;
       border-radius: 10px;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: all 0.2s;
-      display: inline-block;
+      display: block;
       margin-top: 10px;
       width: 100%;
+      text-align: center;
     }
 
     .btn-ghost:hover { color: #fff; border-color: #444; }
@@ -219,59 +228,25 @@
       color: #fff;
       font-size: 15px;
       font-family: 'Inter', sans-serif;
-      padding: 14px 16px;
-      margin-bottom: 12px;
+      padding: 16px;
+      margin-bottom: 16px;
       resize: none;
-      height: 100px;
+      height: 110px;
       outline: none;
       line-height: 1.6;
       transition: border-color 0.2s;
+      text-align: left;
     }
 
     textarea:focus { border-color: #E9A84C; }
     textarea::placeholder { color: #333; }
 
-    .question-label {
-      font-size: 11px;
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      color: #555;
-      text-transform: uppercase;
-      margin-bottom: 8px;
-      display: block;
-    }
-
-    .coach-box {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-left: 3px solid #E9A84C;
-      border-radius: 10px;
-      padding: 20px;
-      font-size: 15px;
-      line-height: 1.75;
-      color: #ccc;
-      margin-bottom: 24px;
-    }
-
-    .spinner {
-      width: 28px;
-      height: 28px;
-      border: 2px solid #222;
-      border-top-color: #E9A84C;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-      margin: 0 auto 20px;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* PROGRESS BAR */
     .progress-bar {
       width: 100%;
       height: 2px;
       background: #1c1c1c;
       border-radius: 99px;
-      margin-bottom: 32px;
+      margin-bottom: 40px;
       overflow: hidden;
     }
 
@@ -282,18 +257,54 @@
       transition: width 0.5s ease;
     }
 
-    /* CHAT */
+    .coach-box {
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-left: 3px solid #E9A84C;
+      border-radius: 10px;
+      padding: 24px;
+      font-size: 16px;
+      line-height: 1.8;
+      color: #ccc;
+      margin-bottom: 28px;
+      text-align: left;
+      width: 100%;
+    }
+
+    .spinner {
+      width: 32px;
+      height: 32px;
+      border: 2px solid #222;
+      border-top-color: #E9A84C;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* CHAT — framed with gray lines */
     .chat-screen {
+      flex: 1;
+      display: flex;
+      padding: 0 80px;
+    }
+
+    .chat-inner {
+      flex: 1;
       display: flex;
       flex-direction: column;
-      height: 100%;
-      max-width: 680px;
+      border-left: 1px solid #1e1e1e;
+      border-right: 1px solid #1e1e1e;
+      padding: 40px 48px;
+      max-width: 800px;
       margin: 0 auto;
       width: 100%;
     }
 
     .chat-header {
-      margin-bottom: 24px;
+      margin-bottom: 28px;
+      flex-shrink: 0;
     }
 
     .chat-messages {
@@ -301,46 +312,46 @@
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 16px;
+      gap: 20px;
       padding-bottom: 24px;
     }
 
     .chat-message {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       align-items: flex-start;
     }
 
     .chat-message.user { flex-direction: row-reverse; }
 
     .chat-avatar {
-      width: 32px;
-      height: 32px;
+      width: 36px;
+      height: 36px;
       border-radius: 50%;
       background: #1e1e1e;
       display: flex;
       align-items: center;
       justify-content: center;
-      font-size: 14px;
+      font-size: 16px;
       flex-shrink: 0;
     }
 
     .chat-message.user .chat-avatar {
       background: #E9A84C;
       color: #0c0c0c;
-      font-weight: 700;
-      font-size: 12px;
+      font-weight: 800;
+      font-size: 13px;
     }
 
     .chat-bubble {
       background: #111;
       border: 1px solid #1e1e1e;
-      border-radius: 12px;
-      padding: 12px 16px;
-      font-size: 14px;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 15px;
       line-height: 1.7;
       color: #ccc;
-      max-width: 80%;
+      max-width: 75%;
     }
 
     .chat-message.user .chat-bubble {
@@ -351,10 +362,11 @@
 
     .chat-input-area {
       display: flex;
-      gap: 10px;
+      gap: 12px;
       align-items: flex-end;
-      padding-top: 16px;
+      padding-top: 20px;
       border-top: 1px solid #1e1e1e;
+      flex-shrink: 0;
     }
 
     .chat-input {
@@ -363,11 +375,11 @@
       border: 1px solid #1e1e1e;
       border-radius: 10px;
       color: #fff;
-      font-size: 14px;
+      font-size: 15px;
       font-family: 'Inter', sans-serif;
-      padding: 12px 16px;
+      padding: 14px 18px;
       resize: none;
-      height: 48px;
+      height: 52px;
       outline: none;
       line-height: 1.5;
       transition: border-color 0.2s;
@@ -380,79 +392,83 @@
       background: #E9A84C;
       color: #0c0c0c;
       border: none;
-      width: 48px;
-      height: 48px;
+      width: 52px;
+      height: 52px;
       border-radius: 10px;
       cursor: pointer;
-      font-size: 18px;
+      font-size: 20px;
       display: flex;
       align-items: center;
       justify-content: center;
       flex-shrink: 0;
+      font-weight: 700;
       transition: opacity 0.2s;
     }
 
     .chat-send:hover { opacity: 0.88; }
 
-    /* PROGRESS TRACKER */
+    /* PROGRESS TRACKER — full screen */
     .progress-screen {
-      max-width: 680px;
-      margin: 0 auto;
-      width: 100%;
+      flex: 1;
+      padding: 48px 60px;
+      overflow-y: auto;
     }
 
     .stats-grid {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 16px;
+      gap: 20px;
       margin-bottom: 32px;
     }
 
     .stat-card {
       background: #111;
       border: 1px solid #1e1e1e;
-      border-radius: 12px;
-      padding: 20px;
+      border-radius: 16px;
+      padding: 32px;
       text-align: center;
+      transition: border-color 0.2s;
     }
 
+    .stat-card:hover { border-color: #E9A84C; }
+
     .stat-number {
-      font-size: 36px;
+      font-size: 56px;
       font-weight: 800;
       color: #E9A84C;
-      letter-spacing: -0.03em;
+      letter-spacing: -0.04em;
       line-height: 1;
-      margin-bottom: 6px;
+      margin-bottom: 10px;
     }
 
     .stat-label {
-      font-size: 12px;
+      font-size: 13px;
       color: #555;
       font-weight: 600;
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
 
-    .week-grid {
+    .section-block {
       background: #111;
       border: 1px solid #1e1e1e;
-      border-radius: 12px;
-      padding: 24px;
-      margin-bottom: 24px;
+      border-radius: 16px;
+      padding: 28px 32px;
+      margin-bottom: 20px;
     }
 
-    .week-title {
+    .block-title {
       font-size: 13px;
       font-weight: 700;
       color: #555;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
     }
 
     .week-dots {
       display: flex;
-      gap: 8px;
+      gap: 12px;
     }
 
     .week-day {
@@ -460,34 +476,27 @@
       display: flex;
       flex-direction: column;
       align-items: center;
-      gap: 6px;
+      gap: 8px;
     }
 
     .week-dot {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #1e1e1e;
+      width: 100%;
+      height: 48px;
+      border-radius: 10px;
+      background: #1a1a1a;
     }
 
     .week-dot.done { background: #E9A84C; }
-    .week-dot.today { background: #1e1e1e; border: 2px solid #E9A84C; }
+    .week-dot.today { background: #1a1a1a; border: 2px solid #E9A84C; }
 
     .week-day-label {
-      font-size: 11px;
+      font-size: 12px;
       color: #444;
       font-weight: 600;
     }
 
-    .history-list {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-
     .history-item {
-      padding: 16px 20px;
+      padding: 18px 0;
       border-bottom: 1px solid #1a1a1a;
       display: flex;
       justify-content: space-between;
@@ -497,17 +506,17 @@
     .history-item:last-child { border-bottom: none; }
 
     .history-date {
-      font-size: 13px;
-      color: #555;
+      font-size: 15px;
+      color: #888;
       font-weight: 500;
     }
 
     .history-badge {
       background: rgba(233,168,76,0.1);
       color: #E9A84C;
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
-      padding: 4px 10px;
+      padding: 5px 12px;
       border-radius: 99px;
       border: 1px solid rgba(233,168,76,0.2);
     }
@@ -515,7 +524,6 @@
 </head>
 <body>
 
-  <!-- TOP NAV -->
   <div class="top-nav">
     <div class="nav-logo">Stack<span>d</span></div>
     <button class="nav-tab active" onclick="switchTab('checkin', this)">Daily Check-in</button>
@@ -523,22 +531,16 @@
     <button class="nav-tab" onclick="switchTab('progress', this)">Progress Tracker</button>
   </div>
 
-  <!-- LAYOUT -->
   <div class="layout">
-
-    <!-- SIDEBAR -->
     <div class="sidebar">
       <button class="sidebar-item active" onclick="sidebarClick(this)">
         <span class="sidebar-icon">📋</span> Your Check-ins
       </button>
-
       <div class="streak-box">
         <div class="streak-number" id="streakNumber">0</div>
         <div class="streak-label">Day Streak</div>
       </div>
-
       <div class="sidebar-divider"></div>
-
       <div class="sidebar-bottom">
         <button class="sidebar-item" onclick="sidebarClick(this)">
           <span class="sidebar-icon">⚠️</span> Report Problem
@@ -549,16 +551,13 @@
       </div>
     </div>
 
-    <!-- MAIN -->
-    <div class="main" id="mainContent">
-    </div>
-
+    <div class="main" id="mainContent"></div>
   </div>
 
   <script>
     let answers = {};
     let streak = parseInt(localStorage.getItem('stackd_streak') || '0');
-    let chatHistory = [];
+    let checkinAnswers = {};
     const API_URL = 'https://stackd-coral-two.vercel.app/api/coach';
 
     document.getElementById('streakNumber').textContent = streak;
@@ -580,7 +579,7 @@
       document.getElementById('mainContent').innerHTML = html;
     }
 
-    // ── DAILY CHECK-IN ──
+    // DAILY CHECK-IN
     function showCheckinHome() {
       render(`
         <div class="checkin-screen">
@@ -598,8 +597,6 @@
       { key: 'today', label: 'What is your one thing for today?', ph: 'Today I will...' }
     ];
 
-    let checkinAnswers = {};
-
     function startCheckin() {
       checkinAnswers = {};
       showCheckinQuestion(0);
@@ -610,13 +607,13 @@
       const pct = (i / checkinQuestions.length) * 100;
       render(`
         <div class="checkin-screen">
-          <div class="progress-bar">
+          <div class="progress-bar" style="width:100%">
             <div class="progress-fill" id="pb" style="width:0%"></div>
           </div>
           <span class="screen-tag">Question ${i+1} of ${checkinQuestions.length}</span>
           <h1 class="screen-title">${q.label}</h1>
           <textarea id="cans" placeholder="${q.ph}"></textarea>
-          <button class="btn-primary" onclick="saveCheckinAnswer(${i})" style="width:100%">Continue</button>
+          <button class="btn-primary" onclick="saveCheckinAnswer(${i})">Continue</button>
           ${i > 0 ? `<button class="btn-ghost" onclick="showCheckinQuestion(${i-1})">Back</button>` : ''}
         </div>
       `);
@@ -636,14 +633,14 @@
 
     async function submitCheckin() {
       render(`
-        <div class="checkin-screen" style="text-align:center; padding-top:60px;">
+        <div class="checkin-screen">
           <div class="spinner"></div>
           <h1 class="screen-title">Your coach is thinking...</h1>
           <p class="screen-sub">Give it a few seconds.</p>
         </div>
       `);
 
-      const context = `Project: ${answers.project || 'Not set'}\nStage: ${answers.stage || 'Not set'}\nObstacle: ${answers.obstacle || 'Not set'}\nGoal: ${answers.goal || 'Not set'}\nDaily time: ${answers.time || 'Not set'}`;
+      const context = `Project: ${answers.project || 'Not set'}\nGoal: ${answers.goal || 'Not set'}\nObstacle: ${answers.obstacle || 'Not set'}`;
       const checkin = `Yesterday: ${checkinAnswers.yesterday}\nBlocked by: ${checkinAnswers.blocked}\nOne thing today: ${checkinAnswers.today}`;
 
       try {
@@ -664,7 +661,7 @@
             <span class="screen-tag">Your coach says</span>
             <h1 class="screen-title">Here is your coaching.</h1>
             <div class="coach-box">${formatResponse(data.reply)}</div>
-            <button class="btn-primary" onclick="startCheckin()" style="width:100%">New check-in</button>
+            <button class="btn-primary" onclick="startCheckin()">New check-in</button>
             <button class="btn-ghost" onclick="showCheckinHome()">Back to home</button>
           </div>
         `);
@@ -689,24 +686,25 @@
         .replace(/$/, '</p>');
     }
 
-    // ── 24/7 COACH ──
+    // 24/7 COACH
     function showCoach() {
-      chatHistory = [];
       render(`
         <div class="chat-screen">
-          <div class="chat-header">
-            <span class="screen-tag">24/7 Coach</span>
-            <h1 class="screen-title">Ask your mentor anything.</h1>
-          </div>
-          <div class="chat-messages" id="chatMessages">
-            <div class="chat-message">
-              <div class="chat-avatar">🤖</div>
-              <div class="chat-bubble">Hey! I know your project and goals. Ask me anything — stuck on a decision, need advice, or just want to think something through. I am here.</div>
+          <div class="chat-inner">
+            <div class="chat-header">
+              <span class="screen-tag">24/7 Coach</span>
+              <h1 class="screen-title" style="font-size:32px;">Ask your mentor anything.</h1>
             </div>
-          </div>
-          <div class="chat-input-area">
-            <textarea class="chat-input" id="chatInput" placeholder="Ask your coach anything..." onkeydown="handleChatKey(event)"></textarea>
-            <button class="chat-send" onclick="sendChat()">↑</button>
+            <div class="chat-messages" id="chatMessages">
+              <div class="chat-message">
+                <div class="chat-avatar">🤖</div>
+                <div class="chat-bubble">Hey! I know your project and goals. Ask me anything — stuck on a decision, need advice, or just want to think something through. I am here.</div>
+              </div>
+            </div>
+            <div class="chat-input-area">
+              <textarea class="chat-input" id="chatInput" placeholder="Ask your coach anything..." onkeydown="handleChatKey(event)"></textarea>
+              <button class="chat-send" onclick="sendChat()">↑</button>
+            </div>
           </div>
         </div>
       `);
@@ -725,17 +723,12 @@
       if (!msg) return;
       input.value = '';
 
-      chatHistory.push({ role: 'user', content: msg });
-
       const messages = document.getElementById('chatMessages');
       messages.innerHTML += `
         <div class="chat-message user">
           <div class="chat-avatar">Y</div>
           <div class="chat-bubble">${msg}</div>
         </div>
-      `;
-
-      messages.innerHTML += `
         <div class="chat-message" id="typingIndicator">
           <div class="chat-avatar">🤖</div>
           <div class="chat-bubble" style="color:#444;">Thinking...</div>
@@ -743,23 +736,16 @@
       `;
       messages.scrollTop = messages.scrollHeight;
 
-      const context = `Project: ${answers.project || 'Not set'}\nGoal: ${answers.goal || 'Not set'}\nObstacle: ${answers.obstacle || 'Not set'}`;
+      const context = `Project: ${answers.project || 'Not set'}\nGoal: ${answers.goal || 'Not set'}`;
 
       try {
         const response = await fetch(API_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            context,
-            checkin: msg,
-            systemOverride: `You are a 24/7 mentor for a young entrepreneur. You know their project context: ${context}. Be direct, specific, and conversational. Keep responses under 100 words unless they need more detail. No fluff.`
-          })
+          body: JSON.stringify({ context, checkin: msg })
         });
-
         const data = await response.json();
         if (data.error) throw new Error(data.error);
-
-        chatHistory.push({ role: 'assistant', content: data.reply });
 
         document.getElementById('typingIndicator').outerHTML = `
           <div class="chat-message">
@@ -768,7 +754,6 @@
           </div>
         `;
         messages.scrollTop = messages.scrollHeight;
-
       } catch(e) {
         document.getElementById('typingIndicator').outerHTML = `
           <div class="chat-message">
@@ -779,7 +764,7 @@
       }
     }
 
-    // ── PROGRESS TRACKER ──
+    // PROGRESS TRACKER
     function showProgress() {
       const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
       const daysHtml = days.map((d, i) => `
@@ -791,8 +776,8 @@
 
       render(`
         <div class="progress-screen">
-          <span class="screen-tag">Progress Tracker</span>
-          <h1 class="screen-title" style="margin-bottom:24px;">Your progress.</h1>
+          <span class="screen-tag" style="display:block; margin-bottom:12px;">Progress Tracker</span>
+          <h1 class="screen-title" style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Your progress.</h1>
 
           <div class="stats-grid">
             <div class="stat-card">
@@ -809,12 +794,13 @@
             </div>
           </div>
 
-          <div class="week-grid">
-            <div class="week-title">This week</div>
+          <div class="section-block">
+            <div class="block-title">This week</div>
             <div class="week-dots">${daysHtml}</div>
           </div>
 
-          <div class="history-list">
+          <div class="section-block">
+            <div class="block-title">Recent check-ins</div>
             <div class="history-item">
               <span class="history-date">Today</span>
               <span class="history-badge">✓ Completed</span>
@@ -832,7 +818,6 @@
       `);
     }
 
-    // Init
     showCheckinHome();
   </script>
 </body>

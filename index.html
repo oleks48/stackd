@@ -9,9 +9,11 @@
   <style>
     * { margin: 0; padding: 0; box-sizing: border-box; }
 
+    html { scroll-behavior: smooth; }
+
     body {
-      background: #0c0c0c;
-      color: #fff;
+      background: #ffffff;
+      color: #0c0c0c;
       font-family: 'Inter', sans-serif;
       overflow-x: hidden;
     }
@@ -21,99 +23,134 @@
       display: flex;
       align-items: center;
       justify-content: space-between;
-      padding: 24px 48px;
-      border-bottom: 1px solid #1a1a1a;
+      padding: 28px 64px;
+      border-bottom: 1px solid #e8e8e8;
       position: sticky;
       top: 0;
-      background: #0c0c0c;
+      background: #ffffff;
       z-index: 100;
     }
 
     .nav-logo {
-      font-size: 22px;
+      font-size: 28px;
       font-weight: 800;
-      letter-spacing: -0.03em;
-      color: #fff;
+      letter-spacing: -0.04em;
+      color: #0c0c0c;
     }
 
     .nav-logo span { color: #E9A84C; }
 
     .nav-links {
       display: flex;
-      gap: 36px;
+      gap: 48px;
       list-style: none;
     }
 
     .nav-links a {
-      color: #666;
+      color: #888;
       text-decoration: none;
-      font-size: 14px;
+      font-size: 16px;
       font-weight: 500;
       transition: color 0.2s;
     }
 
-    .nav-links a:hover { color: #fff; }
+    .nav-links a:hover { color: #0c0c0c; }
 
-    .nav-cta {
-      background: #E9A84C;
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-signin {
+      background: transparent;
       color: #0c0c0c;
+      border: 1px solid #ddd;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+    }
+
+    .btn-signin:hover { border-color: #0c0c0c; }
+
+    .btn-signup {
+      background: #0c0c0c;
+      color: #fff;
       border: none;
-      padding: 10px 22px;
-      font-size: 14px;
-      font-weight: 700;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
       border-radius: 8px;
       cursor: pointer;
       font-family: 'Inter', sans-serif;
       transition: opacity 0.2s;
     }
 
-    .nav-cta:hover { opacity: 0.88; }
+    .btn-signup:hover { opacity: 0.8; }
 
     /* HERO */
     .hero {
-      min-height: 90vh;
+      min-height: 92vh;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       text-align: center;
-      padding: 80px 24px;
+      padding: 100px 48px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero-bg {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px;
+      height: 800px;
+      background: radial-gradient(circle, rgba(233,168,76,0.12) 0%, rgba(233,168,76,0) 70%);
+      pointer-events: none;
     }
 
     .hero-badge {
       display: inline-block;
-      background: #1a1a1a;
+      background: #fff8ee;
       color: #E9A84C;
-      font-size: 11px;
+      font-size: 13px;
       font-weight: 700;
-      letter-spacing: 0.12em;
+      letter-spacing: 0.08em;
       text-transform: uppercase;
-      padding: 6px 14px;
+      padding: 8px 18px;
       border-radius: 99px;
-      margin-bottom: 32px;
-      border: 1px solid #2a2a2a;
+      margin-bottom: 36px;
+      border: 1px solid #fde8bc;
     }
 
     .hero h1 {
-      font-size: 80px;
+      font-size: 96px;
       font-weight: 800;
       letter-spacing: -0.04em;
       line-height: 1;
-      margin-bottom: 24px;
-      max-width: 700px;
+      margin-bottom: 28px;
+      max-width: 800px;
+      color: #0c0c0c;
     }
 
     .hero p {
-      font-size: 18px;
-      color: #666;
+      font-size: 20px;
+      color: #888;
       line-height: 1.7;
-      max-width: 480px;
-      margin-bottom: 40px;
+      max-width: 520px;
+      margin-bottom: 48px;
     }
 
     .hero-buttons {
       display: flex;
-      gap: 12px;
+      gap: 14px;
       flex-wrap: wrap;
       justify-content: center;
     }
@@ -122,8 +159,8 @@
       background: #E9A84C;
       color: #0c0c0c;
       border: none;
-      padding: 15px 32px;
-      font-size: 15px;
+      padding: 18px 40px;
+      font-size: 17px;
       font-weight: 700;
       border-radius: 10px;
       cursor: pointer;
@@ -137,10 +174,10 @@
 
     .btn-ghost {
       background: transparent;
-      color: #666;
-      border: 1px solid #2a2a2a;
-      padding: 15px 32px;
-      font-size: 15px;
+      color: #888;
+      border: 1px solid #ddd;
+      padding: 18px 40px;
+      font-size: 17px;
       font-weight: 500;
       border-radius: 10px;
       cursor: pointer;
@@ -150,207 +187,259 @@
       display: inline-block;
     }
 
-    .btn-ghost:hover { color: #fff; border-color: #444; }
+    .btn-ghost:hover { color: #0c0c0c; border-color: #0c0c0c; }
 
-    /* SECTION */
+    /* DIVIDER */
+    .divider {
+      height: 1px;
+      background: #f0f0f0;
+      max-width: 1100px;
+      margin: 0 auto;
+    }
+
+    /* SECTIONS */
     section {
-      padding: 100px 24px;
-      max-width: 960px;
+      padding: 120px 64px;
+      max-width: 1100px;
       margin: 0 auto;
     }
 
     .section-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.12em;
       color: #E9A84C;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 18px;
       display: block;
     }
 
     .section-title {
-      font-size: 42px;
+      font-size: 52px;
       font-weight: 800;
       letter-spacing: -0.03em;
       line-height: 1.1;
-      margin-bottom: 16px;
-      max-width: 560px;
+      margin-bottom: 18px;
+      max-width: 600px;
+      color: #0c0c0c;
     }
 
     .section-sub {
-      font-size: 16px;
-      color: #666;
+      font-size: 18px;
+      color: #888;
       line-height: 1.7;
-      max-width: 480px;
-      margin-bottom: 60px;
+      max-width: 500px;
+      margin-bottom: 64px;
     }
 
     /* FEATURES */
     .features {
       display: grid;
       grid-template-columns: repeat(3, 1fr);
-      gap: 20px;
+      gap: 24px;
     }
 
     .feature-card {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-radius: 14px;
-      padding: 28px;
-      transition: border-color 0.2s;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 32px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
 
-    .feature-card:hover { border-color: #E9A84C; }
+    .feature-card:hover {
+      border-color: #E9A84C;
+      box-shadow: 0 4px 24px rgba(233,168,76,0.1);
+    }
 
     .feature-icon {
-      width: 40px;
-      height: 40px;
-      background: #1a1a1a;
-      border-radius: 10px;
+      width: 48px;
+      height: 48px;
+      background: #fff8ee;
+      border-radius: 12px;
       display: flex;
       align-items: center;
       justify-content: center;
-      margin-bottom: 16px;
-      font-size: 20px;
+      margin-bottom: 20px;
+      font-size: 22px;
+      border: 1px solid #fde8bc;
     }
 
     .feature-card h3 {
-      font-size: 16px;
+      font-size: 18px;
       font-weight: 700;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       letter-spacing: -0.02em;
+      color: #0c0c0c;
     }
 
     .feature-card p {
-      font-size: 14px;
-      color: #555;
+      font-size: 15px;
+      color: #888;
       line-height: 1.6;
-    }
-
-    /* DIVIDER */
-    .divider {
-      height: 1px;
-      background: #1a1a1a;
-      max-width: 960px;
-      margin: 0 auto;
     }
 
     /* PRICING */
     .pricing-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
-      gap: 20px;
-      max-width: 640px;
+      gap: 24px;
+      max-width: 700px;
     }
 
     .pricing-card {
-      background: #111;
-      border: 1px solid #1e1e1e;
-      border-radius: 14px;
-      padding: 32px;
+      background: #fafafa;
+      border: 1px solid #f0f0f0;
+      border-radius: 16px;
+      padding: 36px;
     }
 
     .pricing-card.featured {
-      border-color: #E9A84C;
+      background: #0c0c0c;
+      border-color: #0c0c0c;
+      color: #fff;
     }
 
     .pricing-label {
-      font-size: 11px;
+      font-size: 12px;
       font-weight: 700;
       letter-spacing: 0.12em;
-      color: #555;
+      color: #aaa;
       text-transform: uppercase;
-      margin-bottom: 16px;
+      margin-bottom: 20px;
       display: block;
     }
 
-    .pricing-card.featured .pricing-label {
-      color: #E9A84C;
-    }
+    .pricing-card.featured .pricing-label { color: #E9A84C; }
 
     .pricing-price {
-      font-size: 36px;
+      font-size: 48px;
       font-weight: 800;
       letter-spacing: -0.03em;
       margin-bottom: 4px;
+      color: #0c0c0c;
     }
 
+    .pricing-card.featured .pricing-price { color: #fff; }
+
     .pricing-per {
-      font-size: 13px;
-      color: #555;
-      margin-bottom: 24px;
+      font-size: 14px;
+      color: #aaa;
+      margin-bottom: 28px;
     }
 
     .pricing-features {
       list-style: none;
-      margin-bottom: 28px;
+      margin-bottom: 32px;
     }
 
     .pricing-features li {
-      font-size: 14px;
+      font-size: 15px;
       color: #888;
-      padding: 6px 0;
-      border-bottom: 1px solid #1a1a1a;
+      padding: 8px 0;
+      border-bottom: 1px solid #f0f0f0;
       line-height: 1.5;
+    }
+
+    .pricing-card.featured .pricing-features li {
+      color: #aaa;
+      border-bottom-color: #1e1e1e;
     }
 
     .pricing-features li:last-child { border-bottom: none; }
 
-    .trial-note {
-      font-size: 14px;
-      color: #555;
-      margin-top: 24px;
+    .btn-dark {
+      width: 100%;
+      background: #0c0c0c;
+      color: #fff;
+      border: none;
+      padding: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
       text-align: center;
+      display: block;
+      text-decoration: none;
+      transition: opacity 0.2s;
     }
 
-    .trial-note span { color: #E9A84C; }
+    .btn-dark:hover { opacity: 0.8; }
+
+    .btn-amber {
+      width: 100%;
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 16px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-align: center;
+      display: block;
+      text-decoration: none;
+      transition: opacity 0.2s;
+    }
+
+    .btn-amber:hover { opacity: 0.88; }
+
+    .trial-note {
+      font-size: 15px;
+      color: #aaa;
+      margin-top: 28px;
+    }
+
+    .trial-note span { color: #E9A84C; font-weight: 600; }
 
     /* FOOTER */
     footer {
-      border-top: 1px solid #1a1a1a;
-      padding: 40px 48px;
+      border-top: 1px solid #f0f0f0;
+      padding: 48px 64px;
       display: flex;
       align-items: center;
       justify-content: space-between;
     }
 
     .footer-logo {
-      font-size: 18px;
+      font-size: 22px;
       font-weight: 800;
       letter-spacing: -0.03em;
+      color: #0c0c0c;
     }
 
     .footer-logo span { color: #E9A84C; }
 
-    footer p {
-      font-size: 13px;
-      color: #444;
-    }
+    footer p { font-size: 14px; color: #aaa; }
   </style>
 </head>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <body>
 
   <!-- NAV -->
   <nav>
     <div class="nav-logo">Stack<span>d</span></div>
     <ul class="nav-links">
-      <li><a href="#features">Meet Stackd</a></li>
-      <li><a href="#pricing">Pricing</a></li>
-      <li><a href="#about">About</a></li>
+      <li><a href="#features" onclick="smoothScroll(event,'features')">Meet Stackd</a></li>
+      <li><a href="#pricing" onclick="smoothScroll(event,'pricing')">Pricing</a></li>
+      <li><a href="#about" onclick="smoothScroll(event,'about')">About</a></li>
     </ul>
-    <button class="nav-cta" onclick="window.location.href='app.html'">Get started</button>
+    <div class="nav-buttons">
+      <button class="btn-signin" onclick="window.location.href='app.html'">Sign in</button>
+      <button class="btn-signup" onclick="window.location.href='app.html'">Sign up free</button>
+    </div>
   </nav>
 
   <!-- HERO -->
   <div class="hero">
+    <div class="hero-bg"></div>
     <div class="hero-badge">Your AI Mentor is ready</div>
     <h1>Build something real.</h1>
     <p>Feeling stuck, unmotivated or unclear where you are heading? Stackd is your daily progress tracker and AI mentor.</p>
     <div class="hero-buttons">
       <a href="app.html" class="btn-primary">Get started for free</a>
-      <a href="#features" class="btn-ghost">See how it works</a>
+      <a href="#features" onclick="smoothScroll(event,'features')" class="btn-ghost">See how it works</a>
     </div>
   </div>
 
@@ -398,7 +487,7 @@
           <li>Progress tracking</li>
           <li>7-day free trial</li>
         </ul>
-        <a href="app.html" class="btn-primary" style="text-align:center; display:block;">Start free trial</a>
+        <a href="app.html" class="btn-dark">Start free trial</a>
       </div>
       <div class="pricing-card featured">
         <span class="pricing-label">Annual — 33% off</span>
@@ -410,7 +499,7 @@
           <li>Progress tracking</li>
           <li>7-day free trial</li>
         </ul>
-        <a href="app.html" class="btn-primary" style="text-align:center; display:block;">Start free trial</a>
+        <a href="app.html" class="btn-amber">Start free trial</a>
       </div>
     </div>
     <p class="trial-note">Try Stackd free for 7 days. <span>No credit card required.</span></p>
@@ -424,6 +513,13 @@
     <p>Built for young entrepreneurs who are serious about building.</p>
     <p>© 2025 Stackd</p>
   </footer>
+
+  <script>
+    function smoothScroll(e, id) {
+      e.preventDefault();
+      document.getElementById(id).scrollIntoView({ behavior: 'smooth' });
+    }
+  </script>
 
 </body>
 </html>

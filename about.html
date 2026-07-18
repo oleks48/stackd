@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd — About</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+
+    body {
+      background: #0c0c0c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 64px;
+      border-bottom: 1px solid #1e1e1e;
+      position: sticky;
+      top: 0;
+      background: #0c0c0c;
+      z-index: 100;
+    }
+
+    .nav-logo {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: #E9A84C; }
+
+    .nav-links {
+      display: flex;
+      gap: 48px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      color: #555;
+      text-decoration: none;
+      font-size: 17px;
+      font-weight: 600;
+      transition: color 0.2s;
+    }
+
+    .nav-links a:hover { color: #fff; }
+    .nav-links a.active { color: #fff; }
+
+    .nav-buttons {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+    }
+
+    .btn-signin {
+      background: transparent;
+      color: #fff;
+      border: 1px solid #333;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-signin:hover { border-color: #fff; }
+
+    .btn-signup {
+      background: #fff;
+      color: #0c0c0c;
+      border: none;
+      padding: 12px 24px;
+      font-size: 15px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-signup:hover { opacity: 0.85; }
+
+    /* HERO */
+    .hero {
+      padding: 120px 64px 80px;
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    .tag {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #E9A84C;
+      text-transform: uppercase;
+      margin-bottom: 24px;
+      display: block;
+    }
+
+    .hero-headline {
+      font-size: 80px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 16px;
+      color: #fff;
+    }
+
+    .hero-sub {
+      font-size: 28px;
+      font-weight: 600;
+      color: #E9A84C;
+      letter-spacing: -0.02em;
+      margin-bottom: 80px;
+    }
+
+    /* CREED */
+    .creed {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 64px 80px;
+    }
+
+    .creed-label {
+      font-size: 12px;
+      font-weight: 700;
+      letter-spacing: 0.12em;
+      color: #333;
+      text-transform: uppercase;
+      margin-bottom: 48px;
+      display: block;
+    }
+
+    .creed-text {
+      font-size: 24px;
+      line-height: 1.8;
+      color: #888;
+      font-weight: 400;
+    }
+
+    .creed-text strong {
+      color: #fff;
+      font-weight: 700;
+    }
+
+    .creed-text .highlight {
+      color: #E9A84C;
+      font-weight: 600;
+    }
+
+    .divider {
+      height: 1px;
+      background: #1e1e1e;
+      max-width: 900px;
+      margin: 0 auto 80px;
+    }
+
+    /* CLOSING */
+    .closing {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 64px 120px;
+    }
+
+    .closing-text {
+      font-size: 56px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1.1;
+      color: #fff;
+      margin-bottom: 48px;
+    }
+
+    .closing-text span { color: #E9A84C; }
+
+    .btn-primary {
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 18px 40px;
+      font-size: 17px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+      text-decoration: none;
+      display: inline-block;
+    }
+
+    .btn-primary:hover { opacity: 0.88; }
+
+    /* FOOTER */
+    footer {
+      border-top: 1px solid #1e1e1e;
+      padding: 48px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 22px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .footer-logo span { color: #E9A84C; }
+    footer p { font-size: 14px; color: #444; }
+
+    /* FADE IN */
+    .fade-in {
+      opacity: 0;
+      transform: translateY(24px);
+      transition: opacity 0.7s ease, transform 0.7s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    .delay-1 { transition-delay: 0.1s; }
+    .delay-2 { transition-delay: 0.25s; }
+    .delay-3 { transition-delay: 0.4s; }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">Stack<span>d</span></a>
+    <ul class="nav-links">
+      <li><a href="index.html#features">Meet Stackd</a></li>
+      <li><a href="index.html#pricing">Pricing</a></li>
+      <li><a href="about.html" class="active">About</a></li>
+    </ul>
+    <div class="nav-buttons">
+      <a href="app.html" class="btn-signin">Sign in</a>
+      <a href="app.html" class="btn-signup">Sign up free</a>
+    </div>
+  </nav>
+
+  <div class="hero">
+    <span class="tag fade-in delay-1">About Stackd</span>
+    <h1 class="hero-headline fade-in delay-2">We're Stackd.</h1>
+    <p class="hero-sub fade-in delay-3">And we're on a mission.</p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="creed">
+    <span class="creed-label">Our Creed</span>
+    <p class="creed-text fade-in">
+      <strong>Stackd was created to change people.</strong> We were sent here to live, dream big and improve. But now in today's world of distraction, <span class="highlight">the desire to thrive faded in most of the population.</span>
+      <br><br>
+      We want the world to improve and move forward. We help entrepreneurs to <strong>never look back</strong> and let oneself be consumed by the world of distraction.
+      <br><br>
+      Whenever you're building a startup, a dropshipping store or a grocery store — <span class="highlight">the world needs you.</span> And we're here — every day, every night for you.
+      <br><br>
+      With us you won't get distracted in any way and <strong>will achieve your dreams.</strong>
+    </p>
+  </div>
+
+  <div class="divider"></div>
+
+  <div class="closing">
+    <h2 class="closing-text fade-in">And help the world <span>in the best possible way.</span></h2>
+    <a href="app.html" class="btn-primary">Start building today</a>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Stack<span>d</span></div>
+    <p>Built for young entrepreneurs who are serious about building.</p>
+    <p>© 2025 Stackd</p>
+  </footer>
+
+  <script>
+    const observer = new IntersectionObserver((entries) => {
+      entries.forEach(entry => {
+        if (entry.isIntersecting) entry.target.classList.add('visible');
+      });
+    }, { threshold: 0.1 });
+
+    document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
+
+    window.addEventListener('load', () => {
+      document.querySelectorAll('.hero .fade-in').forEach(el => el.classList.add('visible'));
+    });
+  </script>
+
+</body>
+</html>

@@ -731,7 +731,7 @@
 
     const { data, error } = await supabaseClient
       .from('users')
-      .insert([{ email, password, streak: 0 }])
+      .insert([{ email, user_password: password, streak: 0 }])
       .select()
       .single();
 
@@ -756,7 +756,7 @@
       .from('users')
       .select('*')
       .eq('email', email)
-      .eq('password', password)
+      .eq('user_password', password)
       .single();
 
     if (error || !data) {

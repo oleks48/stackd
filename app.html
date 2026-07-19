@@ -717,18 +717,6 @@
       return;
     }
 
-    const { data: existing } = await supabaseClient
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (existing) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'An account with this email already exists.';
-      return;
-    }
-
     const { data, error } = await supabaseClient
       .from('users')
       .insert([{ email, user_password: password, streak: 0 }])
@@ -737,7 +725,7 @@
 
     if (error) {
       errorEl.style.display = 'block';
-      errorEl.textContent = 'Something went wrong. Try again.';
+      errorEl.textContent = error.message;
       return;
     }
 

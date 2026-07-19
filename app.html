@@ -691,6 +691,12 @@
 
   async function init() {
     const savedTheme = localStorage.getItem('stackd_theme');
+if (savedTheme === 'light') {
+  document.body.setAttribute('data-theme', 'light');
+  document.body.style.background = '#ffffff';
+  document.body.style.color = '#0c0c0c';
+}
+    const savedTheme = localStorage.getItem('stackd_theme');
 if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
     const stored = localStorage.getItem('stackd_user');
     if (stored) {
@@ -966,7 +972,18 @@ function toggleTheme() {
       document.body.setAttribute('data-theme', 'light');
       localStorage.setItem('stackd_theme', 'light');
     }
+    
+    // Force apply background immediately
+    if (document.body.getAttribute('data-theme') === 'light') {
+      document.body.style.background = '#ffffff';
+      document.body.style.color = '#0c0c0c';
+    } else {
+      document.body.style.background = '#0c0c0c';
+      document.body.style.color = '#ffffff';
+    }
+    
     showSettings();
+  }
   }
 
   function render(html) {

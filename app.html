@@ -1073,11 +1073,15 @@ async function resetPassword() {
           <button class="sidebar-item active" onclick="sidebarClick(this)">
             <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span> Your Check-ins
           </button>
-          <div class="streak-box">
-            <div class="streak-number" id="streakNumber">${streak}</div>
-            <div class="streak-label">Day Streak</div>
-          </div>
-          <div class="sidebar-divider"></div>
+         <div class="streak-box">
+  <div class="streak-number" id="streakNumber">${streak}</div>
+  <div class="streak-label">Day Streak</div>
+</div>
+<button class="sidebar-item" onclick="sidebarClick(this)">
+  <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Chat History
+</button>
+<div class="sidebar-divider">
+</div>
           <div class="sidebar-bottom">
             <button class="sidebar-item" onclick="sidebarClick(this)">
               <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span> Report Problem
@@ -1107,7 +1111,66 @@ async function resetPassword() {
     const label = el.textContent.trim();
     if (label === 'Settings') showSettings();
     if (label === 'Your Check-ins') showHistory();
+   if (label === 'Chat History') showChatHistory();
    if (label === 'Report Problem') showReportProblem();
+  }
+  async function showChatHistory() {
+    render(`
+      <div class="progress-screen">
+        <span class="screen-tag" style="display:block; margin-bottom:12px;">Chat History</span>
+        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Mentor chat history.</h1>
+        <div class="section-block">
+          <div class="block-title">Loading...</div>
+        </div>
+      </div>
+    `);
+
+    const { data, error } = await supabaseClient
+      .from('chats')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      render(`
+        <div class="progress-screen">
+          <span class="screen-tag" style="display:block; margin-bottom:12px;">Chat History</span>
+          <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Mentor chat history.</h1>
+          <div class="section-block">
+            <div class="block-title">No chats yet</div>
+            <p style="color:#555; font-size:15px;">Start a conversation with your 24/7 coach to see your history here.</p>
+          </div>
+        </div>
+      `);
+      return;
+    }
+
+    const itemsHtml = data.map(c => {
+      const date = new Date(c.created_at).toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+      });
+      return `
+        <div class="section-block" style="margin-bottom:16px;">
+          <div class="block-title">${date}</div>
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">You</div>
+            <div style="font-size:15px; color:#ccc;">${c.message}</div>
+          </div>
+          <div style="border-top:1px solid #1e1e1e; padding-top:12px;">
+            <div style="font-size:11px; color:#E9A84C; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Coach</div>
+            <div style="font-size:15px; color:#ccc; line-height:1.7;">${formatResponse(c.response)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    render(`
+      <div class="progress-screen">
+        <span class="screen-tag" style="display:block; margin-bottom:12px;">Chat History</span>
+        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Mentor chat history.</h1>
+        ${itemsHtml}
+      </div>
+    `);
   }
   async function showReportProblem() {
     render(`
@@ -1563,6 +1626,13 @@ async function submitReport() {
       `;
       messages.scrollTop = messages.scrollHeight;
     } catch(e) {
+      await supabaseClient
+        .from('chats')
+        .insert([{
+          user_id: currentUser.id,
+          message: msg,
+          response: data.reply
+        }]);
       document.getElementById('typingIndicator').outerHTML = `
         <div class="chat-message">
           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px;">Sd</div>

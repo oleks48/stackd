@@ -681,7 +681,7 @@
   const SUPABASE_URL = 'https://jknxrszxpjiznphjkfbk.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-  
+
   const API_URL = 'https://stackd-coral-two.vercel.app/api/coach';
 
   let currentUser = null;
@@ -691,13 +691,12 @@
 
   async function init() {
     const savedTheme = localStorage.getItem('stackd_theme');
-if (savedTheme === 'light') {
-  document.body.setAttribute('data-theme', 'light');
-  document.body.style.background = '#ffffff';
-  document.body.style.color = '#0c0c0c';
-}
-    const savedTheme = localStorage.getItem('stackd_theme');
-if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
+    if (savedTheme === 'light') {
+      document.body.setAttribute('data-theme', 'light');
+      document.body.style.background = '#ffffff';
+      document.body.style.color = '#0c0c0c';
+    }
+
     const stored = localStorage.getItem('stackd_user');
     if (stored) {
       currentUser = JSON.parse(stored);
@@ -720,7 +719,6 @@ if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
     showAuth('signup');
   }
 
-  // ── AUTH ──
   function showAuth(mode) {
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
@@ -824,7 +822,6 @@ if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
     showAuth('signin');
   }
 
-  // ── ONBOARDING ──
   const onboardingQuestions = [
     { key: 'project', title: 'What are you building?', sub: 'Describe your project in a few words.', ph: 'I am building a...' },
     { key: 'stage', title: 'Where are you right now?', sub: 'Be honest. This is just for your coach.', ph: 'I just started / have some progress / completely stuck...' },
@@ -865,7 +862,7 @@ if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
   async function saveOnboardingAnswer(i, goBack = false) {
     const val = document.getElementById('oans').value.trim();
     if (val) onboardingAnswers[onboardingQuestions[i].key] = val;
-    
+
     if (goBack) {
       showOnboardingQuestion(i - 1);
       return;
@@ -890,7 +887,6 @@ if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
     }
   }
 
-  // ── APP ──
   function showApp() {
     streak = userProfile.streak || 0;
     document.getElementById('appBody').innerHTML = `
@@ -934,19 +930,19 @@ if (savedTheme === 'light') document.body.setAttribute('data-theme', 'light');
     if (tab === 'progress') showProgress();
   }
 
-function sidebarClick(el) {
+  function sidebarClick(el) {
     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
     const label = el.textContent.trim();
     if (label === 'Settings') showSettings();
   }
+
   function showSettings() {
     const isDark = document.body.getAttribute('data-theme') !== 'light';
     render(`
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">Settings</span>
         <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Settings</h1>
-
         <div class="section-block">
           <div class="block-title">Appearance</div>
           <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0;">
@@ -963,34 +959,26 @@ function sidebarClick(el) {
     `);
   }
 
-function toggleTheme() {
+  function toggleTheme() {
     const isLight = document.body.getAttribute('data-theme') === 'light';
     if (isLight) {
       document.body.removeAttribute('data-theme');
+      document.body.style.background = '#0c0c0c';
+      document.body.style.color = '#ffffff';
       localStorage.setItem('stackd_theme', 'dark');
     } else {
       document.body.setAttribute('data-theme', 'light');
-      localStorage.setItem('stackd_theme', 'light');
-    }
-    
-    // Force apply background immediately
-    if (document.body.getAttribute('data-theme') === 'light') {
       document.body.style.background = '#ffffff';
       document.body.style.color = '#0c0c0c';
-    } else {
-      document.body.style.background = '#0c0c0c';
-      document.body.style.color = '#ffffff';
+      localStorage.setItem('stackd_theme', 'light');
     }
-    
     showSettings();
-  }
   }
 
   function render(html) {
     document.getElementById('mainContent').innerHTML = html;
   }
 
-  // ── DAILY CHECK-IN ──
   function showCheckinHome() {
     render(`
       <div class="checkin-screen">
@@ -1119,7 +1107,6 @@ function toggleTheme() {
       .replace(/$/, '</p>');
   }
 
-  // ── 24/7 COACH ──
   function showCoach() {
     render(`
       <div class="chat-screen">
@@ -1197,7 +1184,6 @@ function toggleTheme() {
     }
   }
 
-  // ── PROGRESS ──
   function showProgress() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const daysHtml = days.map((d, i) => `

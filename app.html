@@ -1318,7 +1318,7 @@ async function submitReport() {
         </div>
         <span class="screen-tag">Question ${i+1} of ${checkinQuestions.length}</span>
         <h1 class="screen-title small">${q.label}</h1>
-        <textarea id="cans" placeholder="${q.ph}"></textarea>
+        <textarea id="cans" spellcheck="false" placeholder="${q.ph}"></textarea>
         <button class="btn-primary" onclick="saveCheckinAnswer(${i})">Continue</button>
         ${i > 0 ? `<button class="btn-ghost" onclick="showCheckinQuestion(${i-1})">Back</button>` : ''}
       </div>
@@ -1419,7 +1419,7 @@ async function submitReport() {
             </div>
           </div>
           <div class="chat-input-area">
-            <textarea class="chat-input" id="chatInput" placeholder="Ask your coach anything..." onkeydown="handleChatKey(event)"></textarea>
+            <textarea class="chat-input" spellcheck="false" id="chatInput" placeholder="Ask your coach anything..." onkeydown="handleChatKey(event)"></textarea>
             <button class="chat-send" onclick="sendChat()">↑</button>
           </div>
         </div>

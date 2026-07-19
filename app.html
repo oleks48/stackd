@@ -791,6 +791,7 @@
   function showOnboardingQuestion(i) {
     const q = onboardingQuestions[i];
     const pct = (i / onboardingQuestions.length) * 100;
+    const savedAnswer = onboardingAnswers[q.key] || '';
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
         <div style="width:100%; max-width:560px; margin:0 auto;">
@@ -800,19 +801,26 @@
           <span class="screen-tag">Setup ${i+1} of ${onboardingQuestions.length}</span>
           <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px; color:#fff;">${q.title}</h1>
           <p style="font-size:17px; color:#555; margin-bottom:28px; line-height:1.6;">${q.sub}</p>
-          <textarea id="oans" placeholder="${q.ph}" style="height:120px;"></textarea>
+          <textarea id="oans" placeholder="${q.ph}" style="height:120px;">${savedAnswer}</textarea>
           <button class="auth-btn" onclick="saveOnboardingAnswer(${i})">Continue</button>
-          ${i > 0 ? `<button class="btn-ghost" style="margin-top:10px;" onclick="showOnboardingQuestion(${i-1})">Back</button>` : ''}
+          ${i > 0 ? `<button class="btn-ghost" style="margin-top:10px;" onclick="saveOnboardingAnswer(${i}, true)">Back</button>` : ''}
         </div>
       </div>
     `;
     setTimeout(() => { document.getElementById('pb').style.width = pct + '%'; }, 50);
   }
 
-  async function saveOnboardingAnswer(i) {
+  async function saveOnboardingAnswer(i, goBack = false) {
     const val = document.getElementById('oans').value.trim();
+    if (val) onboardingAnswers[onboardingQuestions[i].key] = val;
+    
+    if (goBack) {
+      showOnboardingQuestion(i - 1);
+      return;
+    }
+
     if (!val) return;
-    onboardingAnswers[onboardingQuestions[i].key] = val;
+
     if (i < onboardingQuestions.length - 1) {
       showOnboardingQuestion(i + 1);
     } else {

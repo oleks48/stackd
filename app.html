@@ -735,7 +735,10 @@
             <label class="auth-label">Password</label>
             <input type="password" class="auth-input" id="authPassword" placeholder="Min 6 characters">
             <button class="auth-btn" onclick="signUp()">Create account</button>
-            <div class="auth-switch">Already have an account? <a onclick="showAuth('signin')">Sign in</a></div>
+            <div class="auth-switch">Already have an account? <a onclick="showAuth('signin')">Sign in</a>
+            <div style="text-align:center; margin-top:16px; padding-top:16px; border-top:1px solid #1e1e1e;">
+  <a href="index.html" style="color:#555; font-size:13px; text-decoration:none;">← Back to home</a>
+</div>
           ` : `
             <h2 class="auth-title">Welcome back</h2>
             <p class="auth-sub">Sign in to continue building.</p>
@@ -747,11 +750,13 @@
             <button class="auth-btn" onclick="signIn()">Sign in</button>
             <div style="text-align:center; margin-top:12px;">
   <a onclick="showForgotPassword()" style="color:#555; font-size:13px; cursor:pointer;">Forgot password?</a>
+  <div style="text-align:center; margin-top:16px; padding-top:16px; border-top:1px solid #1e1e1e;">
+  <a href="index.html" style="color:#555; font-size:13px; text-decoration:none;">← Back to home</a>
+</div>
 </div>
             <div class="auth-switch">No account yet? <a onclick="showAuth('signup')">Sign up free</a></div>
           `}
         </div>
-      </div>
     `;
   }
 function showForgotPassword() {

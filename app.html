@@ -538,7 +538,7 @@
   <div class="layout">
     <div class="sidebar">
       <button class="sidebar-item active" onclick="sidebarClick(this)">
-        <span class="sidebar-icon">📋</span> Your Check-ins
+       <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span> Your Check-ins
       </button>
       <div class="streak-box">
         <div class="streak-number" id="streakNumber">0</div>
@@ -547,10 +547,10 @@
       <div class="sidebar-divider"></div>
       <div class="sidebar-bottom">
         <button class="sidebar-item" onclick="sidebarClick(this)">
-          <span class="sidebar-icon">⚠️</span> Report Problem
+          <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span> Report Problem
         </button>
         <button class="sidebar-item" onclick="sidebarClick(this)">
-          <span class="sidebar-icon">⚙️</span> Settings
+         <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.07 4.93a10 10 0 010 14.14M4.93 4.93a10 10 0 000 14.14"/></svg></span> Settings
         </button>
       </div>
     </div>
@@ -770,7 +770,7 @@
 
         document.getElementById('typingIndicator').outerHTML = `
           <div class="chat-message">
-            <div class="chat-avatar">🤖</div>
+           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
             <div class="chat-bubble">${formatResponse(data.reply)}</div>
           </div>
         `;
@@ -778,7 +778,7 @@
       } catch(e) {
         document.getElementById('typingIndicator').outerHTML = `
           <div class="chat-message">
-            <div class="chat-avatar">🤖</div>
+          <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
             <div class="chat-bubble" style="color:#c0392b;">Something went wrong. Try again.</div>
           </div>
         `;

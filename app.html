@@ -676,6 +676,101 @@
 [data-theme="light"] .sidebar {
   border-color: #e0e0e0;
 }
+    @media (max-width: 768px) {
+  body {
+    overflow: auto;
+  }
+
+  .top-nav {
+    padding: 0 16px;
+    height: auto;
+    flex-wrap: wrap;
+    gap: 4px;
+    padding: 12px 16px;
+  }
+
+  .nav-logo {
+    font-size: 20px;
+    margin-right: auto;
+  }
+
+  .nav-tab {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .nav-signout {
+    font-size: 12px;
+    padding: 6px 10px;
+  }
+
+  .layout {
+    flex-direction: column;
+  }
+
+  .sidebar {
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #1e1e1e;
+    padding: 12px 16px;
+    flex-direction: row;
+    align-items: center;
+    gap: 8px;
+    overflow-x: auto;
+  }
+
+  .sidebar-bottom {
+    margin-top: 0;
+    flex-direction: row;
+    gap: 8px;
+  }
+
+  .sidebar-divider { display: none; }
+
+  .streak-box {
+    padding: 8px 12px;
+    margin: 0;
+    white-space: nowrap;
+  }
+
+  .streak-number { font-size: 20px; }
+  .streak-label { font-size: 9px; }
+
+  .sidebar-item {
+    padding: 8px 10px;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+
+  .checkin-screen {
+    padding: 40px 24px;
+  }
+
+  .screen-title { font-size: 48px; }
+  .screen-title.small { font-size: 32px; }
+  .screen-sub { font-size: 16px; margin-bottom: 32px; }
+
+  .chat-screen {
+    padding: 0;
+  }
+
+  .chat-inner {
+    padding: 20px 16px;
+    border-left: none;
+    border-right: none;
+  }
+
+  .progress-screen {
+    padding: 24px 16px;
+  }
+
+  .stats-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .auth-box {
+    padding: 24px 20px;
+  }
   </style>
 </head>
 <body id="appBody">

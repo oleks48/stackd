@@ -745,13 +745,94 @@
             <label class="auth-label">Password</label>
             <input type="password" class="auth-input" id="authPassword" placeholder="Your password">
             <button class="auth-btn" onclick="signIn()">Sign in</button>
+            <div style="text-align:center; margin-top:12px;">
+  <a onclick="showForgotPassword()" style="color:#555; font-size:13px; cursor:pointer;">Forgot password?</a>
+</div>
             <div class="auth-switch">No account yet? <a onclick="showAuth('signup')">Sign up free</a></div>
           `}
         </div>
       </div>
     `;
   }
+function showForgotPassword() {
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <h2 class="auth-title">Reset password</h2>
+          <p class="auth-sub">Enter your email and new password below.</p>
+          <div class="auth-error" id="resetError"></div>
+          <label class="auth-label">Email</label>
+          <input type="email" class="auth-input" id="resetEmail" placeholder="you@example.com">
+          <label class="auth-label">New Password</label>
+          <input type="password" class="auth-input" id="resetPassword" placeholder="Min 6 characters">
+          <label class="auth-label">Confirm Password</label>
+          <input type="password" class="auth-input" id="resetConfirm" placeholder="Confirm new password">
+          <button class="auth-btn" onclick="resetPassword()">Reset password</button>
+          <div class="auth-switch"><a onclick="showAuth('signin')">Back to sign in</a></div>
+        </div>
+      </div>
+    `;
+  }
 
+async function resetPassword() {
+    const email = document.getElementById('resetEmail').value.trim();
+    const password = document.getElementById('resetPassword').value.trim();
+    const confirm = document.getElementById('resetConfirm').value.trim();
+    const errorEl = document.getElementById('resetError');
+
+    if (!email || !password || !confirm) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'Please fill in all fields.';
+      return;
+    }
+
+    if (password.length < 6) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    if (password !== confirm) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    const { data, error } = await supabaseClient
+      .from('users')
+      .select('id')
+      .eq('email', email)
+      .single();
+
+    if (error || !data) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'No account found with that email.';
+      return;
+    }
+
+    const { error: updateError } = await supabaseClient
+      .from('users')
+      .update({ user_password: password })
+      .eq('email', email);
+
+    if (updateError) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'Something went wrong. Try again.';
+      return;
+    }
+
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <h2 class="auth-title">Password reset.</h2>
+          <p class="auth-sub">Your password has been updated. Sign in with your new password.</p>
+          <button class="auth-btn" onclick="showAuth('signin')">Go to sign in</button>
+        </div>
+      </div>
+    `;
+  }
   async function signUp() {
     const email = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value.trim();

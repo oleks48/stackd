@@ -946,7 +946,8 @@
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">Settings</span>
         <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Settings</h1>
-        <div class="section-block">
+
+        <div class="section-block" style="margin-bottom:20px;">
           <div class="block-title">Appearance</div>
           <div style="display:flex; align-items:center; justify-content:space-between; padding:8px 0;">
             <div>
@@ -958,8 +959,110 @@
             </div>
           </div>
         </div>
+
+        <div class="section-block" style="margin-bottom:20px;">
+          <div class="block-title">Account</div>
+          
+          <div style="margin-bottom:20px;">
+            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Change Email</div>
+            <input type="email" id="newEmail" class="auth-input" placeholder="New email address" style="margin-bottom:8px;">
+            <button class="btn-primary" style="padding:12px; font-size:14px;" onclick="changeEmail()">Update email</button>
+          </div>
+
+          <div style="border-top:1px solid #1e1e1e; padding-top:20px; margin-bottom:20px;">
+            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Change Password</div>
+            <input type="password" id="newPassword" class="auth-input" placeholder="New password (min 6 characters)" style="margin-bottom:8px;">
+            <input type="password" id="confirmPassword" class="auth-input" placeholder="Confirm new password" style="margin-bottom:8px;">
+            <button class="btn-primary" style="padding:12px; font-size:14px;" onclick="changePassword()">Update password</button>
+          </div>
+
+          <div style="border-top:1px solid #1e1e1e; padding-top:20px;">
+            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Danger Zone</div>
+            <button onclick="deleteAccount()" style="background:transparent; color:#c0392b; border:1px solid #c0392b; padding:12px 20px; border-radius:8px; font-size:14px; font-weight:600; cursor:pointer; font-family:Inter,sans-serif; width:100%;">Delete account</button>
+          </div>
+        </div>
+
+        <div id="settingsMsg" style="display:none; padding:12px 16px; border-radius:8px; font-size:14px; margin-top:8px;"></div>
       </div>
     `);
+  }
+  async function changeEmail() {
+    const newEmail = document.getElementById('newEmail').value.trim();
+    const msg = document.getElementById('settingsMsg');
+    if (!newEmail) return;
+
+    const { error } = await supabaseClient
+      .from('users')
+      .update({ email: newEmail })
+      .eq('id', currentUser.id);
+
+    if (error) {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(192,57,43,0.1)';
+      msg.style.color = '#e74c3c';
+      msg.textContent = error.message;
+    } else {
+      userProfile.email = newEmail;
+      localStorage.setItem('stackd_user', JSON.stringify(userProfile));
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(39,174,96,0.1)';
+      msg.style.color = '#27ae60';
+      msg.textContent = 'Email updated successfully.';
+    }
+
+async function changePassword() {
+    const newPassword = document.getElementById('newPassword').value.trim();
+    const confirmPassword = document.getElementById('confirmPassword').value.trim();
+    const msg = document.getElementById('settingsMsg');
+
+    if (!newPassword || !confirmPassword) return;
+
+    if (newPassword.length < 6) {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(192,57,43,0.1)';
+      msg.style.color = '#e74c3c';
+      msg.textContent = 'Password must be at least 6 characters.';
+      return;
+    }
+
+    if (newPassword !== confirmPassword) {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(192,57,43,0.1)';
+      msg.style.color = '#e74c3c';
+      msg.textContent = 'Passwords do not match.';
+      return;
+    }
+
+    const { error } = await supabaseClient
+      .from('users')
+      .update({ user_password: newPassword })
+      .eq('id', currentUser.id);
+
+    if (error) {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(192,57,43,0.1)';
+      msg.style.color = '#e74c3c';
+      msg.textContent = error.message;
+    } else {
+      msg.style.display = 'block';
+      msg.style.background = 'rgba(39,174,96,0.1)';
+      msg.style.color = '#27ae60';
+      msg.textContent = 'Password updated successfully.';
+    }
+
+async function deleteAccount() {
+    const confirm = window.confirm('Are you sure you want to delete your account? This cannot be undone.');
+    if (!confirm) return;
+
+    await supabaseClient
+      .from('users')
+      .delete()
+      .eq('id', currentUser.id);
+
+    localStorage.removeItem('stackd_user');
+    currentUser = null;
+    userProfile = null;
+    showAuth('signup');
   }
 
   function toggleTheme() {

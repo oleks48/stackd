@@ -636,8 +636,8 @@
 <script>
   const SUPABASE_URL = 'https://jknxrszxpjiznphjkfbk.supabase.co/rest/v1/';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
-  const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-
+  const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
   const API_URL = 'https://stackd-coral-two.vercel.app/api/coach';
 
   let currentUser = null;
@@ -649,7 +649,7 @@
     const stored = localStorage.getItem('stackd_user');
     if (stored) {
       currentUser = JSON.parse(stored);
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from('users')
         .select('*')
         .eq('id', currentUser.id)
@@ -717,7 +717,7 @@
       return;
     }
 
-    const { data: existing } = await supabase
+    const { data: existing } = await supabaseClient
       .from('users')
       .select('id')
       .eq('email', email)
@@ -729,7 +729,7 @@
       return;
     }
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('users')
       .insert([{ email, password, streak: 0 }])
       .select()
@@ -752,7 +752,7 @@
     const password = document.getElementById('authPassword').value.trim();
     const errorEl = document.getElementById('authError');
 
-    const { data, error } = await supabase
+    const { data, error } = await supabaseClient
       .from('users')
       .select('*')
       .eq('email', email)
@@ -828,7 +828,7 @@
     if (i < onboardingQuestions.length - 1) {
       showOnboardingQuestion(i + 1);
     } else {
-      const { data } = await supabase
+      const { data } = await supabaseClient
         .from('users')
         .update(onboardingAnswers)
         .eq('id', currentUser.id)
@@ -984,7 +984,7 @@
       streak++;
       const today = new Date().toDateString();
 
-      await supabase
+      await supabaseClient
         .from('users')
         .update({ streak, last_checkin: today })
         .eq('id', currentUser.id);

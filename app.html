@@ -920,11 +920,78 @@
     if (tab === 'progress') showProgress();
   }
 
-  function sidebarClick(el) {
+ function sidebarClick(el) {
     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
     const label = el.textContent.trim();
     if (label === 'Settings') showSettings();
+    if (label === 'Your Check-ins') showHistory();
+  }
+  async function showHistory() {
+    render(`
+      <div class="progress-screen">
+        <span class="screen-tag" style="display:block; margin-bottom:12px;">History</span>
+        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Your check-ins.</h1>
+        <div class="section-block">
+          <div class="block-title">Loading...</div>
+        </div>
+      </div>
+    `);
+
+    const { data, error } = await supabaseClient
+      .from('checkins')
+      .select('*')
+      .eq('user_id', currentUser.id)
+      .order('created_at', { ascending: false });
+
+    if (error || !data || data.length === 0) {
+      render(`
+        <div class="progress-screen">
+          <span class="screen-tag" style="display:block; margin-bottom:12px;">History</span>
+          <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Your check-ins.</h1>
+          <div class="section-block">
+            <div class="block-title">No check-ins yet</div>
+            <p style="color:#555; font-size:15px;">Complete your first daily check-in to see your history here.</p>
+          </div>
+        </div>
+      `);
+      return;
+    }
+
+    const itemsHtml = data.map(c => {
+      const date = new Date(c.created_at).toLocaleDateString('en-GB', { 
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      });
+      return `
+        <div class="section-block" style="margin-bottom:16px;">
+          <div class="block-title">${date}</div>
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">What I did yesterday</div>
+            <div style="font-size:15px; color:#ccc;">${c.yesterday}</div>
+          </div>
+          <div style="margin-bottom:12px;">
+            <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">What blocked me</div>
+            <div style="font-size:15px; color:#ccc;">${c.blocked}</div>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">My one thing</div>
+            <div style="font-size:15px; color:#ccc;">${c.today}</div>
+          </div>
+          <div style="border-top:1px solid #1e1e1e; padding-top:16px;">
+            <div style="font-size:11px; color:#E9A84C; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Coach response</div>
+            <div style="font-size:15px; color:#ccc; line-height:1.7;">${formatResponse(c.coach_response)}</div>
+          </div>
+        </div>
+      `;
+    }).join('');
+
+    render(`
+      <div class="progress-screen">
+        <span class="screen-tag" style="display:block; margin-bottom:12px;">History</span>
+        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Your check-ins.</h1>
+        ${itemsHtml}
+      </div>
+    `);
   }
 
   function showSettings() {
@@ -1148,6 +1215,15 @@
         .from('users')
         .update({ streak, last_checkin: today })
         .eq('id', currentUser.id);
+      await supabaseClient
+        .from('checkins')
+        .insert([{
+          user_id: currentUser.id,
+          yesterday: checkinAnswers.yesterday,
+          blocked: checkinAnswers.blocked,
+          today: checkinAnswers.today,
+          coach_response: data.reply
+        }]);
       userProfile.streak = streak;
       userProfile.last_checkin = today;
       localStorage.setItem('stackd_user', JSON.stringify(userProfile));

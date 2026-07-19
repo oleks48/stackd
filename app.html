@@ -1618,6 +1618,13 @@ async function submitReport() {
       });
       const data = await response.json();
       if (data.error) throw new Error(data.error);
+      await supabaseClient
+        .from('chats')
+        .insert([{
+          user_id: currentUser.id,
+          message: msg,
+          response: data.reply
+        }]);
       document.getElementById('typingIndicator').outerHTML = `
         <div class="chat-message">
           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
@@ -1626,13 +1633,6 @@ async function submitReport() {
       `;
       messages.scrollTop = messages.scrollHeight;
     } catch(e) {
-      await supabaseClient
-        .from('chats')
-        .insert([{
-          user_id: currentUser.id,
-          message: msg,
-          response: data.reply
-        }]);
       document.getElementById('typingIndicator').outerHTML = `
         <div class="chat-message">
           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px;">Sd</div>

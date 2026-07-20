@@ -1,0 +1,314 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd — Join the Waitlist</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+
+    body {
+      background: #0c0c0c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 28px 64px;
+      border-bottom: 1px solid #1e1e1e;
+      background: #0c0c0c;
+    }
+
+    .nav-logo {
+      font-size: 28px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      color: #fff;
+      text-decoration: none;
+    }
+
+    .nav-logo span { color: #E9A84C; }
+
+    .hero {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 100px 24px;
+      background: linear-gradient(to top, rgba(233,168,76,0.7) 0%, rgba(233,168,76,0.15) 40%, rgba(12,12,12,0) 100%);
+    }
+
+    .hero-badge {
+      display: inline-block;
+      background: #111;
+      color: #E9A84C;
+      font-size: 13px;
+      font-weight: 700;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      padding: 8px 18px;
+      border-radius: 99px;
+      margin-bottom: 36px;
+      border: 1px solid #333;
+    }
+
+    h1 {
+      font-size: 72px;
+      font-weight: 800;
+      letter-spacing: -0.04em;
+      line-height: 1;
+      margin-bottom: 24px;
+      max-width: 700px;
+    }
+
+    .sub {
+      font-size: 20px;
+      color: #666;
+      line-height: 1.7;
+      max-width: 480px;
+      margin-bottom: 16px;
+    }
+
+    .launch-date {
+      font-size: 15px;
+      color: #E9A84C;
+      font-weight: 700;
+      margin-bottom: 48px;
+      letter-spacing: 0.05em;
+    }
+
+    .waitlist-form {
+      display: flex;
+      gap: 12px;
+      max-width: 480px;
+      width: 100%;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    .waitlist-input {
+      flex: 1;
+      min-width: 240px;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 10px;
+      color: #fff;
+      font-size: 15px;
+      font-family: 'Inter', sans-serif;
+      padding: 16px 20px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+
+    .waitlist-input:focus { border-color: #E9A84C; }
+    .waitlist-input::placeholder { color: #444; }
+
+    .waitlist-btn {
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 16px 32px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 10px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      transition: opacity 0.2s;
+      white-space: nowrap;
+    }
+
+    .waitlist-btn:hover { opacity: 0.88; }
+
+    .msg {
+      margin-top: 20px;
+      font-size: 14px;
+      display: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+    }
+
+    .msg.success {
+      background: rgba(39,174,96,0.1);
+      color: #27ae60;
+      border: 1px solid rgba(39,174,96,0.2);
+    }
+
+    .msg.error {
+      background: rgba(192,57,43,0.1);
+      color: #e74c3c;
+      border: 1px solid rgba(192,57,43,0.2);
+    }
+
+    .perks {
+      margin-top: 64px;
+      display: flex;
+      gap: 32px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 600px;
+    }
+
+    .perk {
+      text-align: center;
+    }
+
+    .perk-icon {
+      font-size: 24px;
+      margin-bottom: 8px;
+    }
+
+    .perk-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 4px;
+    }
+
+    .perk-sub {
+      font-size: 13px;
+      color: #555;
+    }
+
+    .counter {
+      margin-top: 32px;
+      font-size: 14px;
+      color: #555;
+    }
+
+    .counter span {
+      color: #E9A84C;
+      font-weight: 700;
+    }
+
+    footer {
+      border-top: 1px solid #1e1e1e;
+      padding: 32px 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .footer-logo {
+      font-size: 18px;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      color: #fff;
+    }
+
+    .footer-logo span { color: #E9A84C; }
+    footer p { font-size: 13px; color: #444; }
+
+    @media (max-width: 768px) {
+      nav { padding: 20px 24px; }
+      h1 { font-size: 44px; }
+      .sub { font-size: 16px; }
+      .waitlist-form { flex-direction: column; }
+      .waitlist-input { min-width: unset; }
+      footer { padding: 24px; flex-direction: column; gap: 8px; text-align: center; }
+      .perks { gap: 24px; }
+    }
+  </style>
+</head>
+<body>
+
+  <nav>
+    <a href="index.html" class="nav-logo">Stack<span>d</span></a>
+  </nav>
+
+  <div class="hero">
+    <div class="hero-badge">Launching September 1st 2026</div>
+    <h1>Be first to build with Stackd.</h1>
+    <p class="sub">Join the waitlist and get 75% off your first 3 months when we launch.</p>
+    <p class="launch-date">🚀 Launch: September 1st, 2026</p>
+
+    <div class="waitlist-form">
+      <input type="email" class="waitlist-input" id="waitlistEmail" placeholder="Enter your email address">
+      <button class="waitlist-btn" onclick="joinWaitlist()">Join waitlist</button>
+    </div>
+
+    <div class="msg" id="waitlistMsg"></div>
+
+    <div class="perks">
+      <div class="perk">
+        <div class="perk-icon">🎯</div>
+        <div class="perk-title">75% off launch</div>
+        <div class="perk-sub">Locked in for 3 months</div>
+      </div>
+      <div class="perk">
+        <div class="perk-icon">⚡</div>
+        <div class="perk-title">Early access</div>
+        <div class="perk-sub">First to use new features</div>
+      </div>
+      <div class="perk">
+        <div class="perk-icon">💬</div>
+        <div class="perk-title">Shape the product</div>
+        <div class="perk-sub">Your feedback drives what we build</div>
+      </div>
+    </div>
+
+    <div class="counter">Already <span id="waitlistCount">0</span> people on the waitlist</div>
+  </div>
+
+  <footer>
+    <div class="footer-logo">Stack<span>d</span></div>
+    <p>© 2026 Stackd. Built for young entrepreneurs.</p>
+  </footer>
+
+  <script>
+    const SUPABASE_URL = 'https://jknxrszxpjiznphjkfbk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function loadCount() {
+      const { count } = await supabaseClient
+        .from('waitlist')
+        .select('*', { count: 'exact', head: true });
+      if (count) document.getElementById('waitlistCount').textContent = count;
+    }
+
+    async function joinWaitlist() {
+      const email = document.getElementById('waitlistEmail').value.trim();
+      const msg = document.getElementById('waitlistMsg');
+
+      if (!email) return;
+
+      const { error } = await supabaseClient
+        .from('waitlist')
+        .insert([{ email }]);
+
+      msg.style.display = 'block';
+
+      if (error) {
+        if (error.code === '23505') {
+          msg.className = 'msg error';
+          msg.textContent = 'You are already on the waitlist!';
+        } else {
+          msg.className = 'msg error';
+          msg.textContent = 'Something went wrong. Try again.';
+        }
+      } else {
+        msg.className = 'msg success';
+        msg.textContent = 'You are on the waitlist! We will email you on launch day.';
+        document.getElementById('waitlistEmail').value = '';
+        loadCount();
+      }
+    }
+
+    loadCount();
+  </script>
+
+</body>
+</html>

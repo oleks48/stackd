@@ -14,6 +14,10 @@ export default async function handler(req, res) {
   try {
     const { context, checkin } = req.body;
 
+    if (!process.env.ANTHROPIC_API_KEY) {
+      return res.status(500).json({ error: 'API key not configured' });
+    }
+
     const response = await fetch('https://api.anthropic.com/v1/messages', {
       method: 'POST',
       headers: {
@@ -29,14 +33,21 @@ export default async function handler(req, res) {
       })
     });
 
-    const data = await response.json();
+    const text = await response.text();
     
+    let data;
+    try {
+      data = JSON.parse(text);
+    } catch(e) {
+      return res.status(500).json({ error: 'Invalid response from Anthropic', raw: text });
+    }
+
     if (data.error) {
-      return res.status(500).json({ error: data.error.message, full: data.error });
+      return res.status(500).json({ error: data.error.message });
     }
 
     res.status(200).json({ reply: data.content[0].text });
   } catch(e) {
-    res.status(500).json({ error: e.message });
+    res.status(500).json({ error: e.message, stack: e.stack });
   }
 }

@@ -861,42 +861,24 @@ function showForgotPassword() {
         <div class="auth-box">
           <span class="auth-logo">Stack<span>d</span></span>
           <h2 class="auth-title">Reset password</h2>
-          <p class="auth-sub">Enter your email and new password below.</p>
+          <p class="auth-sub">Enter your email and we will send you a reset link.</p>
           <div class="auth-error" id="resetError"></div>
           <label class="auth-label">Email</label>
           <input type="email" class="auth-input" id="resetEmail" placeholder="you@example.com">
-          <label class="auth-label">New Password</label>
-          <input type="password" class="auth-input" id="resetPassword" placeholder="Min 6 characters">
-          <label class="auth-label">Confirm Password</label>
-          <input type="password" class="auth-input" id="resetConfirm" placeholder="Confirm new password">
-          <button class="auth-btn" onclick="resetPassword()">Reset password</button>
+          <button class="auth-btn" onclick="sendResetEmail()">Send reset link</button>
           <div class="auth-switch"><a onclick="showAuth('signin')">Back to sign in</a></div>
         </div>
       </div>
     `;
   }
 
-async function resetPassword() {
+async function sendResetEmail() {
     const email = document.getElementById('resetEmail').value.trim();
-    const password = document.getElementById('resetPassword').value.trim();
-    const confirm = document.getElementById('resetConfirm').value.trim();
     const errorEl = document.getElementById('resetError');
 
-    if (!email || !password || !confirm) {
+    if (!email) {
       errorEl.style.display = 'block';
-      errorEl.textContent = 'Please fill in all fields.';
-      return;
-    }
-
-    if (password.length < 6) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Password must be at least 6 characters.';
-      return;
-    }
-
-    if (password !== confirm) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Passwords do not match.';
+      errorEl.textContent = 'Please enter your email.';
       return;
     }
 
@@ -912,56 +894,78 @@ async function resetPassword() {
       return;
     }
 
-    const { error: updateError } = await supabaseClient
+    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+    const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
+
+    await supabaseClient
       .from('users')
-      .update({ user_password: password })
+      .update({ reset_token: token, reset_token_expires: expires })
       .eq('email', email);
 
-    if (updateError) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Something went wrong. Try again.';
-      return;
-    }
+    await fetch('https://stackd-api.onrender.com/api/send-reset', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, token })
+    });
 
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
         <div class="auth-box">
           <span class="auth-logo">Stack<span>d</span></span>
-          <h2 class="auth-title">Password reset.</h2>
-          <p class="auth-sub">Your password has been updated. Sign in with your new password.</p>
-          <button class="auth-btn" onclick="showAuth('signin')">Go to sign in</button>
+          <h2 class="auth-title">Check your email.</h2>
+          <p class="auth-sub">We sent a password reset link to <strong>${email}</strong>. It expires in 1 hour.</p>
+          <button class="auth-btn" onclick="showAuth('signin')">Back to sign in</button>
         </div>
       </div>
     `;
   }
-  async function signUp() {
+ async function signUp() {
     const email = document.getElementById('authEmail').value.trim();
     const password = document.getElementById('authPassword').value.trim();
     const errorEl = document.getElementById('authError');
+
     if (!email || !password) {
       errorEl.style.display = 'block';
       errorEl.textContent = 'Please fill in all fields.';
       return;
     }
+
     if (password.length < 6) {
       errorEl.style.display = 'block';
       errorEl.textContent = 'Password must be at least 6 characters.';
       return;
     }
+
+    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
+
     const { data, error } = await supabaseClient
       .from('users')
-      .insert([{ email, user_password: password, streak: 0 }])
+      .insert([{ email, user_password: password, streak: 0, verified: false, verification_token: token }])
       .select()
       .single();
+
     if (error) {
       errorEl.style.display = 'block';
       errorEl.textContent = error.message;
       return;
     }
-    currentUser = data;
-    userProfile = data;
-    localStorage.setItem('stackd_user', JSON.stringify(data));
-    showOnboarding();
+
+    await fetch('https://stackd-api.onrender.com/api/send-verification', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ email, token })
+    });
+
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <h2 class="auth-title">Check your email.</h2>
+          <p class="auth-sub">We sent a verification link to <strong>${email}</strong>. Click it to activate your account.</p>
+          <button class="auth-btn" onclick="showAuth('signin')">Back to sign in</button>
+        </div>
+      </div>
+    `;
   }
 
   async function signIn() {
@@ -977,6 +981,10 @@ async function resetPassword() {
     if (error || !data) {
       errorEl.style.display = 'block';
       errorEl.textContent = 'Wrong email or password.';
+      return;
+      if (!data.verified) {
+      errorEl.style.display = 'block';
+      errorEl.textContent = 'Please verify your email first. Check your inbox.';
       return;
     }
     currentUser = data;

@@ -1,1 +1,117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd — Verify Email</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c0c0c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(to top, rgba(233,168,76,0.3) 0%, rgba(12,12,12,0) 100%);
+    }
+    .box {
+      width: 100%;
+      max-width: 420px;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+    }
+    .logo { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 32px; display: block; }
+    .logo span { color: #E9A84C; }
+    h2 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+    p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 28px; }
+    .btn {
+      width: 100%;
+      background: #E9A84C;
+      color: #0c0c0c;
+      border: none;
+      padding: 14px;
+      font-size: 15px;
+      font-weight: 700;
+      border-radius: 8px;
+      cursor: pointer;
+      font-family: 'Inter', sans-serif;
+      text-decoration: none;
+      display: block;
+    }
+    .spinner {
+      width: 32px; height: 32px;
+      border: 2px solid #222;
+      border-top-color: #E9A84C;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 0 auto 24px;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+  </style>
+</head>
+<body>
+  <div class="box" id="box">
+    <span class="logo">Stack<span>d</span></span>
+    <div class="spinner"></div>
+    <h2>Verifying your email...</h2>
+    <p>Please wait a moment.</p>
+  </div>
 
+  <script>
+    const SUPABASE_URL = 'https://jknxrszxpjiznphjkfbk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    async function verify() {
+      const params = new URLSearchParams(window.location.search);
+      const token = params.get('token');
+
+      if (!token) {
+        document.getElementById('box').innerHTML = `
+          <span class="logo">Stack<span>d</span></span>
+          <h2>Invalid link.</h2>
+          <p>This verification link is invalid or has expired.</p>
+          <a href="app.html" class="btn">Go to app</a>
+        `;
+        return;
+      }
+
+      const { data, error } = await supabaseClient
+        .from('users')
+        .update({ verified: true, verification_token: null })
+        .eq('verification_token', token)
+        .select()
+        .single();
+
+      if (error || !data) {
+        document.getElementById('box').innerHTML = `
+          <span class="logo">Stack<span>d</span></span>
+          <h2>Link expired.</h2>
+          <p>This verification link is invalid or has already been used.</p>
+          <a href="app.html" class="btn">Go to app</a>
+        `;
+        return;
+      }
+
+      document.getElementById('box').innerHTML = `
+        <span class="logo">Stack<span>d</span></span>
+        <h2>Email verified!</h2>
+        <p>Your account is now active. Start building.</p>
+        <a href="app.html" class="btn">Go to app</a>
+      `;
+    }
+
+    verify();
+  </script>
+</body>
+</html>

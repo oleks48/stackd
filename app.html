@@ -1645,12 +1645,14 @@ async function submitReport() {
 
   function showProgress() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-    const daysHtml = days.map((d, i) => `
-      <div class="week-day">
-        <div class="week-dot ${i < streak % 7 ? 'done' : i === streak % 7 ? 'today' : ''}"></div>
-        <span class="week-day-label">${d}</span>
-      </div>
-    `).join('');
+    const today = new Date().getDay();
+const mondayIndex = today === 0 ? 6 : today - 1;
+const daysHtml = days.map((d, i) => `
+  <div class="week-day">
+    <div class="week-dot ${i === mondayIndex ? 'today' : i < mondayIndex && streak > 0 ? 'done' : ''}"></div>
+    <span class="week-day-label">${d}</span>
+  </div>
+`).join('');
     render(`
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">Progress Tracker</span>

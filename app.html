@@ -983,7 +983,8 @@ async function sendResetEmail() {
       errorEl.style.display = 'block';
       errorEl.textContent = 'Wrong email or password.';
       return;
-      if (!data.verified) {
+    }
+    if (!data.verified) {
       errorEl.style.display = 'block';
       errorEl.textContent = 'Please verify your email first. Check your inbox.';
       return;

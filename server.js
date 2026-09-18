@@ -11,6 +11,12 @@ const server = require('http').createServer(async (req, res) => {
     return;
   }
 
+  if (req.url === '/health') {
+    res.writeHead(200);
+    res.end(JSON.stringify({ status: 'ok' }));
+    return;
+  }
+
   if (req.method !== 'POST' || req.url !== '/api/coach') {
     res.writeHead(404);
     res.end(JSON.stringify({ error: 'Not found' }));

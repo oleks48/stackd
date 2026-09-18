@@ -1,1 +1,132 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Stackd — Reset Password</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="icon" type="image/svg+xml" href="favicon.svg">
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      background: #0c0c0c;
+      color: #fff;
+      font-family: 'Inter', sans-serif;
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      background: linear-gradient(to top, rgba(233,168,76,0.3) 0%, rgba(12,12,12,0) 100%);
+    }
+    .box {
+      width: 100%;
+      max-width: 420px;
+      background: #111;
+      border: 1px solid #1e1e1e;
+      border-radius: 16px;
+      padding: 40px;
+      text-align: center;
+    }
+    .logo { font-size: 28px; font-weight: 800; letter-spacing: -0.04em; margin-bottom: 32px; display: block; }
+    .logo span { color: #E9A84C; }
+    h2 { font-size: 22px; font-weight: 800; margin-bottom: 12px; }
+    p { font-size: 15px; color: #555; line-height: 1.6; margin-bottom: 28px; }
+    label { font-size: 12px; font-weight: 600; color: #555; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 8px; display: block; text-align: left; }
+    input {
+      width: 100%; background: #0c0c0c; border: 1px solid #1e1e1e;
+      border-radius: 8px; color: #fff; font-size: 15px;
+      font-family: 'Inter', sans-serif; padding: 12px 14px;
+      margin-bottom: 16px; outline: none; transition: border-color 0.2s;
+    }
+    input:focus { border-color: #E9A84C; }
+    .btn {
+      width: 100%; background: #E9A84C; color: #0c0c0c;
+      border: none; padding: 14px; font-size: 15px; font-weight: 700;
+      border-radius: 8px; cursor: pointer; font-family: 'Inter', sans-serif;
+      text-decoration: none; display: block; transition: opacity 0.2s;
+    }
+    .btn:hover { opacity: 0.88; }
+    .error { background: rgba(192,57,43,0.1); border: 1px solid rgba(192,57,43,0.3); border-radius: 8px; padding: 10px 14px; font-size: 13px; color: #e74c3c; margin-bottom: 16px; display: none; }
+  </style>
+</head>
+<body>
+  <div class="box" id="box">
+    <span class="logo">Stack<span>d</span></span>
+    <h2>Reset password</h2>
+    <p>Enter your new password below.</p>
+    <div class="error" id="resetError"></div>
+    <label>New Password</label>
+    <input type="password" id="newPassword" placeholder="Min 6 characters">
+    <label>Confirm Password</label>
+    <input type="password" id="confirmPassword" placeholder="Confirm new password">
+    <button class="btn" onclick="resetPassword()">Reset password</button>
+  </div>
 
+  <script>
+    const SUPABASE_URL = 'https://jknxrszxpjiznphjkfbk.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
+    const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
+    if (!token) {
+      document.getElementById('box').innerHTML = `
+        <span class="logo">Stack<span>d</span></span>
+        <h2>Invalid link.</h2>
+        <p>This reset link is invalid or has expired.</p>
+        <a href="app.html" class="btn">Go to app</a>
+      `;
+    }
+
+    async function resetPassword() {
+      const password = document.getElementById('newPassword').value.trim();
+      const confirm = document.getElementById('confirmPassword').value.trim();
+      const errorEl = document.getElementById('resetError');
+
+      if (!password || !confirm) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Please fill in all fields.';
+        return;
+      }
+
+      if (password.length < 6) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Password must be at least 6 characters.';
+        return;
+      }
+
+      if (password !== confirm) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Passwords do not match.';
+        return;
+      }
+
+      const now = new Date().toISOString();
+      const { data, error } = await supabaseClient
+        .from('users')
+        .update({ user_password: password, reset_token: null, reset_token_expires: null })
+        .eq('reset_token', token)
+        .gt('reset_token_expires', now)
+        .select()
+        .single();
+
+      if (error || !data) {
+        errorEl.style.display = 'block';
+        errorEl.textContent = 'Link expired or invalid. Request a new one.';
+        return;
+      }
+
+      document.getElementById('box').innerHTML = `
+        <span class="logo">Stack<span>d</span></span>
+        <h2>Password reset!</h2>
+        <p>Your password has been updated. Sign in with your new password.</p>
+        <a href="app.html" class="btn">Sign in</a>
+      `;
+    }
+  </script>
+</body>
+</html>

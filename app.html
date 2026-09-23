@@ -992,6 +992,23 @@ async function sendResetEmail() {
     currentUser = data;
     userProfile = data;
     streak = data.streak || 0;
+    if (data.last_checkin) {
+  const lastDate = new Date(data.last_checkin);
+  const yesterday = new Date();
+  yesterday.setDate(yesterday.getDate() - 1);
+  yesterday.setHours(0, 0, 0, 0);
+  lastDate.setHours(0, 0, 0, 0);
+  
+  if (lastDate < yesterday) {
+    streak = 0;
+    await supabaseClient
+      .from('users')
+      .update({ streak: 0 })
+      .eq('id', currentUser.id);
+    userProfile.streak = 0;
+  }
+  }
+      
     localStorage.setItem('stackd_user', JSON.stringify(data));
     if (!data.project) {
       showOnboarding();

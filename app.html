@@ -1580,8 +1580,9 @@ async function submitReport() {
     }
   }
 
-  function formatResponse(text) {
+function formatResponse(text) {
     return text
+      .replace(/#{1,6}\s*/g, '')
       .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
       .replace(/\*(.*?)\*/g, '$1')
       .replace(/\n\n/g, '</p><p>')

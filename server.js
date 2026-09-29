@@ -192,12 +192,21 @@ const server = require('http').createServer(async (req, res) => {
           return;
         }
 
-        res.writeHead(200);
+                res.writeHead(200);
         res.end(JSON.stringify({ url: session.url }));
         return;
       }
+
+      res.writeHead(404);
+      res.end(JSON.stringify({ error: 'Not found' }));
+
+    } catch(e) {
+      res.writeHead(500);
+      res.end(JSON.stringify({ error: e.message }));
+    }
   });
 });
+
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => console.log(`Server running on port ${PORT}`));

@@ -3,7 +3,7 @@ const https = require('https');
 function sendEmail(to, subject, html) {
   return new Promise((resolve, reject) => {
     const payload = JSON.stringify({
-      from: 'Stackd <noreply@stackdcoach.com>',
+      from: 'Stackd <contact@stackdcoach.com>',
       to: [to],
       subject,
       html
@@ -28,6 +28,32 @@ function sendEmail(to, subject, html) {
 
     req.on('error', reject);
     req.write(payload);
+    req.end();
+  });
+}
+
+function stripeRequest(method, path, data) {
+  return new Promise((resolve, reject) => {
+    const payload = data ? new URLSearchParams(data).toString() : '';
+    const options = {
+      hostname: 'api.stripe.com',
+      path: `/v1/${path}`,
+      method,
+      headers: {
+        'Authorization': `Bearer ${process.env.STRIPE_SECRET_KEY}`,
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'Content-Length': Buffer.byteLength(payload)
+      }
+    };
+
+    const req = https.request(options, (res) => {
+      let responseData = '';
+      res.on('data', chunk => responseData += chunk);
+      res.on('end', () => resolve(JSON.parse(responseData)));
+    });
+
+    req.on('error', reject);
+    if (payload) req.write(payload);
     req.end();
   });
 }
@@ -112,21 +138,15 @@ const server = require('http').createServer(async (req, res) => {
       if (req.method === 'POST' && req.url === '/api/send-verification') {
         const { email, token } = parsed;
         const link = `https://stackdcoach.com/verify.html?token=${token}`;
-        
-        await sendEmail(
-          email,
-          'Verify your Stackd account',
-          `
-            <div style="font-family:Inter,sans-serif; max-width:480px; margin:0 auto; padding:40px 24px; background:#0c0c0c; color:#fff;">
-              <h1 style="font-size:28px; font-weight:800; margin-bottom:16px;">Stack<span style="color:#E9A84C;">d</span></h1>
-              <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">Verify your email</h2>
-              <p style="color:#888; margin-bottom:28px; line-height:1.6;">Click the button below to verify your email and start building.</p>
-              <a href="${link}" style="background:#E9A84C; color:#0c0c0c; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-block;">Verify email</a>
-              <p style="color:#555; margin-top:24px; font-size:13px;">If you didn't create a Stackd account you can ignore this email.</p>
-            </div>
-          `
-        );
-
+        await sendEmail(email, 'Verify your Stackd account', `
+          <div style="font-family:Inter,sans-serif; max-width:480px; margin:0 auto; padding:40px 24px; background:#0c0c0c; color:#fff;">
+            <h1 style="font-size:28px; font-weight:800; margin-bottom:16px;">Stack<span style="color:#E9A84C;">d</span></h1>
+            <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">Verify your email</h2>
+            <p style="color:#888; margin-bottom:28px; line-height:1.6;">Click the button below to verify your email and start building.</p>
+            <a href="${link}" style="background:#E9A84C; color:#0c0c0c; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-block;">Verify email</a>
+            <p style="color:#555; margin-top:24px; font-size:13px;">If you didn't create a Stackd account you can ignore this email.</p>
+          </div>
+        `);
         res.writeHead(200);
         res.end(JSON.stringify({ success: true }));
         return;
@@ -136,23 +156,38 @@ const server = require('http').createServer(async (req, res) => {
       if (req.method === 'POST' && req.url === '/api/send-reset') {
         const { email, token } = parsed;
         const link = `https://stackdcoach.com/reset.html?token=${token}`;
-
-        await sendEmail(
-          email,
-          'Reset your Stackd password',
-          `
-            <div style="font-family:Inter,sans-serif; max-width:480px; margin:0 auto; padding:40px 24px; background:#0c0c0c; color:#fff;">
-              <h1 style="font-size:28px; font-weight:800; margin-bottom:16px;">Stack<span style="color:#E9A84C;">d</span></h1>
-              <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">Reset your password</h2>
-              <p style="color:#888; margin-bottom:28px; line-height:1.6;">Click the button below to reset your password. This link expires in 1 hour.</p>
-              <a href="${link}" style="background:#E9A84C; color:#0c0c0c; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-block;">Reset password</a>
-              <p style="color:#555; margin-top:24px; font-size:13px;">If you didn't request a password reset you can ignore this email.</p>
-            </div>
-          `
-        );
-
+        await sendEmail(email, 'Reset your Stackd password', `
+          <div style="font-family:Inter,sans-serif; max-width:480px; margin:0 auto; padding:40px 24px; background:#0c0c0c; color:#fff;">
+            <h1 style="font-size:28px; font-weight:800; margin-bottom:16px;">Stack<span style="color:#E9A84C;">d</span></h1>
+            <h2 style="font-size:20px; font-weight:700; margin-bottom:12px;">Reset your password</h2>
+            <p style="color:#888; margin-bottom:28px; line-height:1.6;">Click the button below to reset your password. This link expires in 1 hour.</p>
+            <a href="${link}" style="background:#E9A84C; color:#0c0c0c; padding:14px 28px; border-radius:8px; text-decoration:none; font-weight:700; display:inline-block;">Reset password</a>
+            <p style="color:#555; margin-top:24px; font-size:13px;">If you didn't request a password reset you can ignore this email.</p>
+          </div>
+        `);
         res.writeHead(200);
         res.end(JSON.stringify({ success: true }));
+        return;
+      }
+
+      // Create Stripe checkout session
+      if (req.method === 'POST' && req.url === '/api/create-checkout') {
+        const { priceId, email, userId } = parsed;
+
+        const session = await stripeRequest('POST', 'checkout/sessions', {
+          'payment_method_types[]': 'card',
+          'line_items[0][price]': priceId,
+          'line_items[0][quantity]': '1',
+          'mode': 'subscription',
+          'customer_email': email,
+          'success_url': `https://stackdcoach.com/app.html?payment=success`,
+          'cancel_url': `https://stackdcoach.com/app.html?payment=cancelled`,
+          'metadata[user_id]': userId,
+          'trial_period_days': '7'
+        });
+
+        res.writeHead(200);
+        res.end(JSON.stringify({ url: session.url }));
         return;
       }
 

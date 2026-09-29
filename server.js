@@ -182,8 +182,8 @@ const server = require('http').createServer(async (req, res) => {
           'customer_email': email,
           'success_url': `https://stackdcoach.com/app.html?payment=success`,
           'cancel_url': `https://stackdcoach.com/app.html?payment=cancelled`,
-          'metadata[user_id]': userId,
-          'trial_period_days': '7'
+                   'metadata[user_id]': userId,
+          'subscription_data[trial_period_days]': '7'
         });
 
         if (session.error) {

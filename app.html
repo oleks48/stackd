@@ -905,20 +905,25 @@ function showForgotPassword() {
   }
 
 async function checkout(priceId) {
-    const response = await fetch('https://stackd-api.onrender.com/api/create-checkout', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        priceId,
-        email: userProfile.email,
-        userId: currentUser.id
-      })
-    });
-    const data = await response.json();
-    if (data.url) {
-      window.location.href = data.url;
+    try {
+      const response = await fetch('https://stackd-api.onrender.com/api/create-checkout', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          priceId,
+          email: userProfile.email,
+          userId: currentUser.id
+        })
+      });
+      const data = await response.json();
+      if (data.url) {
+        window.location.href = data.url;
+      } else {
+        alert('Error: ' + (data.error || 'Unknown error'));
+      }
+    } catch(e) {
+      alert('Error: ' + e.message);
     }
-  }
 
 async function sendResetEmail() {
     const email = document.getElementById('resetEmail').value.trim();

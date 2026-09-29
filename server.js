@@ -170,7 +170,7 @@ const server = require('http').createServer(async (req, res) => {
         return;
       }
 
-      // Create Stripe checkout session
+           // Create Stripe checkout session
       if (req.method === 'POST' && req.url === '/api/create-checkout') {
         const { priceId, email, userId } = parsed;
 
@@ -186,18 +186,16 @@ const server = require('http').createServer(async (req, res) => {
           'trial_period_days': '7'
         });
 
+        if (session.error) {
+          res.writeHead(400);
+          res.end(JSON.stringify({ error: session.error.message, full: session }));
+          return;
+        }
+
         res.writeHead(200);
         res.end(JSON.stringify({ url: session.url }));
         return;
       }
-
-      res.writeHead(404);
-      res.end(JSON.stringify({ error: 'Not found' }));
-
-    } catch(e) {
-      res.writeHead(500);
-      res.end(JSON.stringify({ error: e.message }));
-    }
   });
 });
 

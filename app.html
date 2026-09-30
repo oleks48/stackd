@@ -781,12 +781,53 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
   const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-  const API_URL = 'https://stackd-api.onrender.com/api/coach';
+  const API = 'https://stackd-api.onrender.com';
+  const SITE = 'https://stackdcoach.com';
+  const PRICE_MONTHLY = 'price_1UL8ERLXx05PYhrDXYZuoMMt';
+  const PRICE_YEARLY = 'price_1UL8FbLXx05PYhrDKTUOWWS0';
 
   let currentUser = null;
   let userProfile = null;
   let streak = 0;
   let checkinAnswers = {};
+  let onboardingAnswers = {};
+
+  function esc(s) {
+    return String(s == null ? '' : s)
+      .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+      .replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+  }
+
+  async function authFetch(path, body) {
+    const { data } = await supabaseClient.auth.getSession();
+    const token = data.session ? data.session.access_token : '';
+    const res = await fetch(API + path, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+      body: JSON.stringify(body || {})
+    });
+    return res.json();
+  }
+
+  function showMsg(id, text, ok) {
+    const el = document.getElementById(id);
+    if (!el) return;
+    el.style.display = 'block';
+    if (ok) {
+      el.style.background = 'rgba(39,174,96,0.1)';
+      el.style.color = '#27ae60';
+    } else {
+      el.style.background = 'rgba(192,57,43,0.1)';
+      el.style.color = '#e74c3c';
+    }
+    el.textContent = text;
+  }
+
+  async function loadProfile() {
+    const { data } = await supabaseClient
+      .from('profiles').select('*').eq('id', currentUser.id).single();
+    userProfile = data;
+  }
 
   async function init() {
     const savedTheme = localStorage.getItem('stackd_theme');
@@ -795,45 +836,104 @@
       document.body.style.background = '#ffffff';
       document.body.style.color = '#0c0c0c';
     }
-    const stored = localStorage.getItem('stackd_user');
-    if (stored) {
-      currentUser = JSON.parse(stored);
-      const { data } = await supabaseClient
-        .from('users')
-        .select('*')
-        .eq('id', currentUser.id)
-        .single();
-      if (data) {
-        userProfile = data;
-        streak = data.streak || 0;
-        if (!data.project) {
-          showOnboarding();
-        } else {
-          showApp();
-        }
+    localStorage.removeItem('stackd_user'); // old homemade login data
+
+    const paid = new URLSearchParams(window.location.search).get('payment') === 'success';
+    const hash = window.location.hash;
+    let linkError = null;
+    if (hash.includes('error_description')) {
+      linkError = new URLSearchParams(hash.substring(1)).get('error_description');
+    }
+
+    const { data: { session } } = await supabaseClient.auth.getSession();
+    history.replaceState(null, '', window.location.pathname);
+
+    if (!session) {
+      showAuth(linkError ? 'signin' : 'signup', linkError);
+      return;
+    }
+
+    currentUser = session.user;
+    await loadProfile();
+    if (!userProfile) {
+      showAuth('signin', 'Could not load your profile. Please sign in again.');
+      return;
+    }
+    await route(paid);
+  }
+
+  async function route(paid) {
+    if (!userProfile.project) { showOnboarding(); return; }
+    if (!userProfile.subscribed) {
+      if (paid) { await waitForSubscription(); return; }
+      showPricing();
+      return;
+    }
+    await applyStreakReset();
+    showApp();
+  }
+
+  async function waitForSubscription() {
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box" style="text-align:center;">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <div class="spinner"></div>
+          <h2 class="auth-title">Activating your trial...</h2>
+          <p class="auth-sub">This takes a few seconds.</p>
+        </div>
+      </div>
+    `;
+    for (let i = 0; i < 10; i++) {
+      await loadProfile();
+      if (userProfile && userProfile.subscribed) {
+        await applyStreakReset();
+        showApp();
         return;
       }
+      await new Promise(r => setTimeout(r, 1500));
     }
-    showAuth('signup');
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box" style="text-align:center;">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <h2 class="auth-title">Almost there.</h2>
+          <p class="auth-sub">Your payment went through but activation is taking longer than usual. Refresh in a minute.</p>
+          <button class="auth-btn" onclick="window.location.href='app.html'">Refresh</button>
+        </div>
+      </div>
+    `;
   }
-function showAuth(mode) {
+
+  async function applyStreakReset() {
+    if (!userProfile.last_checkin || !userProfile.streak) return;
+    const last = new Date(userProfile.last_checkin);
+    last.setHours(0, 0, 0, 0);
+    const yesterday = new Date();
+    yesterday.setDate(yesterday.getDate() - 1);
+    yesterday.setHours(0, 0, 0, 0);
+    if (last < yesterday) {
+      userProfile.streak = 0;
+      await supabaseClient.from('profiles').update({ streak: 0 }).eq('id', currentUser.id);
+    }
+  }
+
+  // ── AUTH ──
+  function showAuth(mode, notice) {
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
         <div class="auth-box">
           <span class="auth-logo">Stack<span>d</span></span>
           ${mode === 'signup' ? `
             <h2 class="auth-title">Create your account</h2>
-            <p class="auth-sub">Start your 7-day free trial. No credit card required.</p>
+            <p class="auth-sub">Sign up, then start your 7-day free trial.</p>
             <div class="auth-error" id="authError"></div>
             <label class="auth-label">Email</label>
             <input type="email" class="auth-input" id="authEmail" placeholder="you@example.com">
             <label class="auth-label">Password</label>
-            <input type="password" class="auth-input" id="authPassword" placeholder="Min 6 characters">
+            <input type="password" class="auth-input" id="authPassword" placeholder="Min 8 characters">
             <button class="auth-btn" onclick="signUp()">Create account</button>
             <div class="auth-switch">Already have an account? <a onclick="showAuth('signin')">Sign in</a></div>
-            <div style="text-align:center; margin-top:16px; padding-top:16px; border-top:1px solid #1e1e1e;">
-              <a href="index.html" style="color:#555; font-size:13px; text-decoration:none;">← Back to home</a>
-            </div>
           ` : `
             <h2 class="auth-title">Welcome back</h2>
             <p class="auth-sub">Sign in to continue building.</p>
@@ -846,17 +946,77 @@ function showAuth(mode) {
             <div style="text-align:center; margin-top:12px;">
               <a onclick="showForgotPassword()" style="color:#555; font-size:13px; cursor:pointer;">Forgot password?</a>
             </div>
-            <div style="text-align:center; margin-top:16px; padding-top:16px; border-top:1px solid #1e1e1e;">
-              <a href="index.html" style="color:#555; font-size:13px; text-decoration:none;">← Back to home</a>
-            </div>
             <div class="auth-switch">No account yet? <a onclick="showAuth('signup')">Sign up free</a></div>
           `}
+          <div style="text-align:center; margin-top:16px; padding-top:16px; border-top:1px solid #1e1e1e;">
+            <a href="index.html" style="color:#555; font-size:13px; text-decoration:none;">← Back to home</a>
+          </div>
+        </div>
+      </div>
+    `;
+    if (notice) showMsg('authError', notice, false);
+  }
+
+  function showCheckEmail(text) {
+    document.getElementById('appBody').innerHTML = `
+      <div class="auth-screen">
+        <div class="auth-box">
+          <span class="auth-logo">Stack<span>d</span></span>
+          <h2 class="auth-title">Check your email.</h2>
+          <p class="auth-sub">${text}</p>
+          <button class="auth-btn" onclick="showAuth('signin')">Back to sign in</button>
         </div>
       </div>
     `;
   }
- 
-function showForgotPassword() {
+
+  async function signUp() {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    if (!email || !password) { showMsg('authError', 'Please fill in all fields.'); return; }
+    if (password.length < 8) { showMsg('authError', 'Password must be at least 8 characters.'); return; }
+
+    const { data, error } = await supabaseClient.auth.signUp({
+      email,
+      password,
+      options: { emailRedirectTo: SITE + '/app.html' }
+    });
+
+    if (error) { showMsg('authError', error.message); return; }
+    if (data.user && data.user.identities && data.user.identities.length === 0) {
+      showMsg('authError', 'An account with this email already exists. Try signing in.');
+      return;
+    }
+    showCheckEmail('We sent a verification link to <strong>' + esc(email) + '</strong>. Click it to activate your account.');
+  }
+
+  async function signIn() {
+    const email = document.getElementById('authEmail').value.trim();
+    const password = document.getElementById('authPassword').value;
+    if (!email || !password) { showMsg('authError', 'Please fill in all fields.'); return; }
+
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+    if (error) {
+      const text = error.message.includes('Email not confirmed')
+        ? 'Please verify your email first. Check your inbox.'
+        : 'Wrong email or password.';
+      showMsg('authError', text);
+      return;
+    }
+    currentUser = data.user;
+    await loadProfile();
+    if (!userProfile) { showMsg('authError', 'Could not load your profile. Try again.'); return; }
+    await route(false);
+  }
+
+  async function signOut() {
+    await supabaseClient.auth.signOut();
+    currentUser = null;
+    userProfile = null;
+    showAuth('signin');
+  }
+
+  function showForgotPassword() {
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
         <div class="auth-box">
@@ -872,6 +1032,16 @@ function showForgotPassword() {
       </div>
     `;
   }
+
+  async function sendResetEmail() {
+    const email = document.getElementById('resetEmail').value.trim();
+    if (!email) { showMsg('resetError', 'Please enter your email.'); return; }
+    const { error } = await supabaseClient.auth.resetPasswordForEmail(email, { redirectTo: SITE + '/reset.html' });
+    if (error) { showMsg('resetError', error.message); return; }
+    showCheckEmail('If an account exists for <strong>' + esc(email) + '</strong>, we sent a reset link. It expires in 1 hour.');
+  }
+
+  // ── PRICING ──
   function showPricing() {
     document.getElementById('appBody').innerHTML = `
       <div class="auth-screen">
@@ -879,23 +1049,21 @@ function showForgotPassword() {
           <span class="auth-logo">Stack<span>d</span></span>
           <h2 style="font-size:32px; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px; text-align:center;">Start building.</h2>
           <p style="font-size:16px; color:#555; text-align:center; margin-bottom:40px;">7-day free trial. Cancel anytime.</p>
-          
           <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-bottom:24px;">
-            <div style="background:#111; border:1px solid #1e1e1e; border-radius:16px; padding:28px; cursor:pointer;" onclick="checkout('price_1UL8ERLXx05PYhrDXYZuoMMt')">
+            <div style="background:#111; border:1px solid #1e1e1e; border-radius:16px; padding:28px; cursor:pointer;" onclick="checkout('${PRICE_MONTHLY}')">
               <div style="font-size:12px; font-weight:700; color:#555; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px;">Monthly</div>
               <div style="font-size:40px; font-weight:800; color:#fff; letter-spacing:-0.03em; margin-bottom:4px;">$9.99</div>
               <div style="font-size:13px; color:#555; margin-bottom:24px;">per month</div>
               <button class="auth-btn">Start free trial</button>
             </div>
-            <div style="background:#111; border:2px solid #E9A84C; border-radius:16px; padding:28px; cursor:pointer;" onclick="checkout('price_1UL8FbLXx05PYhrDKTUOWWS0')">
+            <div style="background:#111; border:2px solid #E9A84C; border-radius:16px; padding:28px; cursor:pointer;" onclick="checkout('${PRICE_YEARLY}')">
               <div style="font-size:12px; font-weight:700; color:#E9A84C; letter-spacing:0.1em; text-transform:uppercase; margin-bottom:16px;">Annual — 33% off</div>
               <div style="font-size:40px; font-weight:800; color:#fff; letter-spacing:-0.03em; margin-bottom:4px;">$6.66</div>
               <div style="font-size:13px; color:#555; margin-bottom:24px;">per month, $79.99/yr</div>
               <button class="auth-btn">Start free trial</button>
             </div>
           </div>
-
-          <p style="text-align:center; font-size:13px; color:#555;">No credit card required for trial. Cancel anytime.</p>
+          <p style="text-align:center; font-size:13px; color:#555;">A card is required to start the trial. You won't be charged if you cancel before the 7 days end.</p>
           <div style="text-align:center; margin-top:16px;">
             <a onclick="signOut()" style="color:#555; font-size:13px; cursor:pointer;">Sign out</a>
           </div>
@@ -904,179 +1072,20 @@ function showForgotPassword() {
     `;
   }
 
-async function checkout(priceId) {
+  async function checkout(priceId) {
     try {
-      const response = await fetch('https://stackd-api.onrender.com/api/create-checkout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          priceId,
-          email: userProfile.email,
-          userId: currentUser.id
-        })
-      });
-      const data = await response.json();
+      const data = await authFetch('/api/create-checkout', { priceId });
       if (data.url) {
         window.location.href = data.url;
       } else {
         alert('Error: ' + (data.error || 'Unknown error'));
       }
-    } catch(e) {
+    } catch (e) {
       alert('Error: ' + e.message);
     }
-}
-
-async function sendResetEmail() {
-    const email = document.getElementById('resetEmail').value.trim();
-    const errorEl = document.getElementById('resetError');
-
-    if (!email) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Please enter your email.';
-      return;
-    }
-
-    const { data, error } = await supabaseClient
-      .from('users')
-      .select('id')
-      .eq('email', email)
-      .single();
-
-    if (error || !data) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'No account found with that email.';
-      return;
-    }
-
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-    const expires = new Date(Date.now() + 60 * 60 * 1000).toISOString();
-
-    await supabaseClient
-      .from('users')
-      .update({ reset_token: token, reset_token_expires: expires })
-      .eq('email', email);
-
-    await fetch('https://stackd-api.onrender.com/api/send-reset', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, token })
-    });
-
-    document.getElementById('appBody').innerHTML = `
-      <div class="auth-screen">
-        <div class="auth-box">
-          <span class="auth-logo">Stack<span>d</span></span>
-          <h2 class="auth-title">Check your email.</h2>
-          <p class="auth-sub">We sent a password reset link to <strong>${email}</strong>. It expires in 1 hour.</p>
-          <button class="auth-btn" onclick="showAuth('signin')">Back to sign in</button>
-        </div>
-      </div>
-    `;
-  }
- async function signUp() {
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value.trim();
-    const errorEl = document.getElementById('authError');
-
-    if (!email || !password) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Please fill in all fields.';
-      return;
-    }
-
-    if (password.length < 6) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Password must be at least 6 characters.';
-      return;
-    }
-
-    const token = Math.random().toString(36).substring(2) + Date.now().toString(36);
-
-    const { data, error } = await supabaseClient
-      .from('users')
-      .insert([{ email, user_password: password, streak: 0, verified: false, verification_token: token }])
-      .select()
-      .single();
-
-    if (error) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = error.message;
-      return;
-    }
-
-    await fetch('https://stackd-api.onrender.com/api/send-verification', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ email, token })
-    });
-
-    document.getElementById('appBody').innerHTML = `
-      <div class="auth-screen">
-        <div class="auth-box">
-          <span class="auth-logo">Stack<span>d</span></span>
-          <h2 class="auth-title">Check your email.</h2>
-          <p class="auth-sub">We sent a verification link to <strong>${email}</strong>. Click it to activate your account.</p>
-          <button class="auth-btn" onclick="showAuth('signin')">Back to sign in</button>
-        </div>
-      </div>
-    `;
   }
 
-  async function signIn() {
-    const email = document.getElementById('authEmail').value.trim();
-    const password = document.getElementById('authPassword').value.trim();
-    const errorEl = document.getElementById('authError');
-    const { data, error } = await supabaseClient
-      .from('users')
-      .select('*')
-      .eq('email', email)
-      .eq('user_password', password)
-      .single();
-    if (error || !data) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Wrong email or password.';
-      return;
-    }
-    if (!data.verified) {
-      errorEl.style.display = 'block';
-      errorEl.textContent = 'Please verify your email first. Check your inbox.';
-      return;
-    }
-    currentUser = data;
-    userProfile = data;
-    streak = data.streak || 0;
-    if (data.last_checkin) {
-  const lastDate = new Date(data.last_checkin);
-  const yesterday = new Date();
-  yesterday.setDate(yesterday.getDate() - 1);
-  yesterday.setHours(0, 0, 0, 0);
-  lastDate.setHours(0, 0, 0, 0);
-  
-  if (lastDate < yesterday) {
-    streak = 0;
-    await supabaseClient
-      .from('users')
-      .update({ streak: 0 })
-      .eq('id', currentUser.id);
-    userProfile.streak = 0;
-  }
-  }
-      
-    localStorage.setItem('stackd_user', JSON.stringify(data));
-    if (!data.project) {
-      showOnboarding();
-    } else {
-      showApp();
-    }
-  }
-
-  function signOut() {
-    localStorage.removeItem('stackd_user');
-    currentUser = null;
-    userProfile = null;
-    showAuth('signin');
-  }
-
+  // ── ONBOARDING ──
   const onboardingQuestions = [
     { key: 'project', title: 'What are you building?', sub: 'Describe your project in a few words.', ph: 'I am building a...' },
     { key: 'stage', title: 'Where are you right now?', sub: 'Be honest. This is just for your coach.', ph: 'I just started / have some progress / completely stuck...' },
@@ -1084,8 +1093,6 @@ async function sendResetEmail() {
     { key: 'goal', title: 'What does success look like in 3 months?', sub: 'Be specific.', ph: 'In 3 months I want to...' },
     { key: 'time', title: 'How much time can you dedicate daily?', sub: 'Be realistic, not optimistic.', ph: 'I can dedicate... hours per day' }
   ];
-
-  let onboardingAnswers = {};
 
   function showOnboarding() {
     onboardingAnswers = {};
@@ -1102,10 +1109,10 @@ async function sendResetEmail() {
           <div class="progress-bar" style="margin-bottom:40px;">
             <div class="progress-fill" id="pb" style="width:0%"></div>
           </div>
-          <span class="screen-tag">Setup ${i+1} of ${onboardingQuestions.length}</span>
+          <span class="screen-tag">Setup ${i + 1} of ${onboardingQuestions.length}</span>
           <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px; color:#fff;">${q.title}</h1>
           <p style="font-size:17px; color:#555; margin-bottom:28px; line-height:1.6;">${q.sub}</p>
-          <textarea id="oans" placeholder="${q.ph}" style="height:120px;">${savedAnswer}</textarea>
+          <textarea id="oans" spellcheck="false" placeholder="${q.ph}" style="height:120px;">${esc(savedAnswer)}</textarea>
           <button class="auth-btn" onclick="saveOnboardingAnswer(${i})">Continue</button>
           ${i > 0 ? `<button class="btn-ghost" style="margin-top:10px;" onclick="saveOnboardingAnswer(${i}, true)">Back</button>` : ''}
         </div>
@@ -1117,34 +1124,21 @@ async function sendResetEmail() {
   async function saveOnboardingAnswer(i, goBack = false) {
     const val = document.getElementById('oans').value.trim();
     if (val) onboardingAnswers[onboardingQuestions[i].key] = val;
-    if (goBack) {
-      showOnboardingQuestion(i - 1);
-      return;
-    }
+    if (goBack) { showOnboardingQuestion(i - 1); return; }
     if (!val) return;
     if (i < onboardingQuestions.length - 1) {
       showOnboardingQuestion(i + 1);
     } else {
-      const { data } = await supabaseClient
-        .from('users')
-        .update(onboardingAnswers)
-        .eq('id', currentUser.id)
-        .select()
-        .single();
-      if (data) {
-        userProfile = data;
-        localStorage.setItem('stackd_user', JSON.stringify(data));
-      }
-      showApp();
+      const { error } = await supabaseClient
+        .from('profiles').update(onboardingAnswers).eq('id', currentUser.id);
+      if (error) { alert('Could not save your answers. Try again.'); return; }
+      await loadProfile();
+      await route(false);
     }
   }
 
+  // ── APP ──
   function showApp() {
-    if (!userProfile.subscribed) {
-      showPricing();
-      return;
-    }
-    streak = userProfile.streak || 0;
     streak = userProfile.streak || 0;
     document.getElementById('appBody').innerHTML = `
       <div class="top-nav">
@@ -1152,7 +1146,6 @@ async function sendResetEmail() {
         <button class="nav-tab active" onclick="switchTab('checkin', this)">Daily Check-in</button>
         <button class="nav-tab" onclick="switchTab('coach', this)">24/7 Coach</button>
         <button class="nav-tab" onclick="switchTab('progress', this)">Progress Tracker</button>
-        <button class="nav-signout" onclick="showPricing()" style="color:#E9A84C; border-color:#E9A84C; margin-right:8px;">Upgrade</button>
         <button class="nav-signout" onclick="signOut()">Sign out</button>
       </div>
       <div class="layout">
@@ -1160,15 +1153,14 @@ async function sendResetEmail() {
           <button class="sidebar-item active" onclick="sidebarClick(this)">
             <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"/></svg></span> Your Check-ins
           </button>
-         <div class="streak-box">
-  <div class="streak-number" id="streakNumber">${streak}</div>
-  <div class="streak-label">Day Streak</div>
-</div>
-<button class="sidebar-item" onclick="sidebarClick(this)">
-  <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Chat History
-</button>
-<div class="sidebar-divider">
-</div>
+          <div class="streak-box">
+            <div class="streak-number" id="streakNumber">${streak}</div>
+            <div class="streak-label">Day Streak</div>
+          </div>
+          <button class="sidebar-item" onclick="sidebarClick(this)">
+            <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></span> Chat History
+          </button>
+          <div class="sidebar-divider"></div>
           <div class="sidebar-bottom">
             <button class="sidebar-item" onclick="sidebarClick(this)">
               <span class="sidebar-icon"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg></span> Report Problem
@@ -1192,30 +1184,43 @@ async function sendResetEmail() {
     if (tab === 'progress') showProgress();
   }
 
- function sidebarClick(el) {
+  function sidebarClick(el) {
     document.querySelectorAll('.sidebar-item').forEach(i => i.classList.remove('active'));
     el.classList.add('active');
     const label = el.textContent.trim();
     if (label === 'Settings') showSettings();
     if (label === 'Your Check-ins') showHistory();
-   if (label === 'Chat History') showChatHistory();
-   if (label === 'Report Problem') showReportProblem();
+    if (label === 'Chat History') showChatHistory();
+    if (label === 'Report Problem') showReportProblem();
   }
+
+  function render(html) {
+    document.getElementById('mainContent').innerHTML = html;
+  }
+
+  function formatResponse(text) {
+    return esc(text)
+      .replace(/#{1,6}\s*/g, '')
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '$1')
+      .replace(/\n\n/g, '</p><p>')
+      .replace(/\n/g, '<br>')
+      .replace(/^/, '<p>')
+      .replace(/$/, '</p>');
+  }
+
+  // ── HISTORY ──
   async function showChatHistory() {
     render(`
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">Chat History</span>
         <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Mentor chat history.</h1>
-        <div class="section-block">
-          <div class="block-title">Loading...</div>
-        </div>
+        <div class="section-block"><div class="block-title">Loading...</div></div>
       </div>
     `);
 
     const { data, error } = await supabaseClient
-      .from('chats')
-      .select('*')
-      .eq('user_id', currentUser.id)
+      .from('chats').select('*').eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
 
     if (error || !data || data.length === 0) {
@@ -1241,7 +1246,7 @@ async function sendResetEmail() {
           <div class="block-title">${date}</div>
           <div style="margin-bottom:12px;">
             <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">You</div>
-            <div style="font-size:15px; color:#ccc;">${c.message}</div>
+            <div style="font-size:15px; color:#ccc;">${esc(c.message)}</div>
           </div>
           <div style="border-top:1px solid #1e1e1e; padding-top:12px;">
             <div style="font-size:11px; color:#E9A84C; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:6px;">Coach</div>
@@ -1259,80 +1264,18 @@ async function sendResetEmail() {
       </div>
     `);
   }
-  async function showReportProblem() {
-    render(`
-      <div class="progress-screen">
-        <span class="screen-tag" style="display:block; margin-bottom:12px;">Support</span>
-        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px;">Report a problem.</h1>
-        <p style="font-size:17px; color:#555; margin-bottom:32px; line-height:1.7;">Found a bug or have feedback? Let us know and we will fix it fast.</p>
 
-        <div class="section-block">
-          <div style="margin-bottom:16px;">
-            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">What type of issue?</div>
-            <select id="issueType" style="width:100%; background:#0c0c0c; border:1px solid #1e1e1e; border-radius:8px; color:#fff; font-size:15px; font-family:Inter,sans-serif; padding:12px 14px; outline:none;">
-              <option value="bug">Bug / something broken</option>
-              <option value="feedback">Feature feedback</option>
-              <option value="other">Other</option>
-            </select>
-          </div>
-
-          <div style="margin-bottom:16px;">
-            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Describe the problem</div>
-            <textarea id="issueDesc" placeholder="Tell us what happened..." style="height:140px;"></textarea>
-          </div>
-
-          <button class="btn-primary" style="padding:14px; font-size:15px;" onclick="submitReport()">Send report</button>
-        </div>
-
-        <div id="reportMsg" style="display:none; padding:12px 16px; border-radius:8px; font-size:14px; margin-top:16px;"></div>
-      </div>
-    `);
-  }
-
-async function submitReport() {
-    const type = document.getElementById('issueType').value;
-    const desc = document.getElementById('issueDesc').value.trim();
-    const msg = document.getElementById('reportMsg');
-
-    if (!desc) return;
-
-    const { error } = await supabaseClient
-      .from('reports')
-      .insert([{
-        user_id: currentUser.id,
-        email: userProfile.email,
-        type,
-        description: desc
-      }]);
-
-    if (error) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(192,57,43,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.textContent = 'Something went wrong. Try again.';
-    } else {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(39,174,96,0.1)';
-      msg.style.color = '#27ae60';
-      msg.textContent = 'Report sent. Thank you — we will look into it.';
-      document.getElementById('issueDesc').value = '';
-    }
-  }
   async function showHistory() {
     render(`
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">History</span>
         <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:32px;">Your check-ins.</h1>
-        <div class="section-block">
-          <div class="block-title">Loading...</div>
-        </div>
+        <div class="section-block"><div class="block-title">Loading...</div></div>
       </div>
     `);
 
     const { data, error } = await supabaseClient
-      .from('checkins')
-      .select('*')
-      .eq('user_id', currentUser.id)
+      .from('checkins').select('*').eq('user_id', currentUser.id)
       .order('created_at', { ascending: false });
 
     if (error || !data || data.length === 0) {
@@ -1350,23 +1293,23 @@ async function submitReport() {
     }
 
     const itemsHtml = data.map(c => {
-      const date = new Date(c.created_at).toLocaleDateString('en-GB', { 
-        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' 
+      const date = new Date(c.created_at).toLocaleDateString('en-GB', {
+        weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
       });
       return `
         <div class="section-block" style="margin-bottom:16px;">
           <div class="block-title">${date}</div>
           <div style="margin-bottom:12px;">
             <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">What I did yesterday</div>
-            <div style="font-size:15px; color:#ccc;">${c.yesterday}</div>
+            <div style="font-size:15px; color:#ccc;">${esc(c.yesterday)}</div>
           </div>
           <div style="margin-bottom:12px;">
             <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">What blocked me</div>
-            <div style="font-size:15px; color:#ccc;">${c.blocked}</div>
+            <div style="font-size:15px; color:#ccc;">${esc(c.blocked)}</div>
           </div>
           <div style="margin-bottom:16px;">
             <div style="font-size:11px; color:#555; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:4px;">My one thing</div>
-            <div style="font-size:15px; color:#ccc;">${c.today}</div>
+            <div style="font-size:15px; color:#ccc;">${esc(c.today)}</div>
           </div>
           <div style="border-top:1px solid #1e1e1e; padding-top:16px;">
             <div style="font-size:11px; color:#E9A84C; font-weight:600; text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px;">Coach response</div>
@@ -1385,6 +1328,52 @@ async function submitReport() {
     `);
   }
 
+  // ── REPORT PROBLEM ──
+  function showReportProblem() {
+    render(`
+      <div class="progress-screen">
+        <span class="screen-tag" style="display:block; margin-bottom:12px;">Support</span>
+        <h1 style="font-size:42px; font-weight:800; letter-spacing:-0.03em; margin-bottom:12px;">Report a problem.</h1>
+        <p style="font-size:17px; color:#555; margin-bottom:32px; line-height:1.7;">Found a bug or have feedback? Let us know and we will fix it fast.</p>
+        <div class="section-block">
+          <div style="margin-bottom:16px;">
+            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">What type of issue?</div>
+            <select id="issueType" style="width:100%; background:#0c0c0c; border:1px solid #1e1e1e; border-radius:8px; color:#fff; font-size:15px; font-family:Inter,sans-serif; padding:12px 14px; outline:none;">
+              <option value="bug">Bug / something broken</option>
+              <option value="feedback">Feature feedback</option>
+              <option value="other">Other</option>
+            </select>
+          </div>
+          <div style="margin-bottom:16px;">
+            <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Describe the problem</div>
+            <textarea id="issueDesc" spellcheck="false" placeholder="Tell us what happened..." style="height:140px;"></textarea>
+          </div>
+          <button class="btn-primary" style="padding:14px; font-size:15px;" onclick="submitReport()">Send report</button>
+        </div>
+        <div id="reportMsg" style="display:none; padding:12px 16px; border-radius:8px; font-size:14px; margin-top:16px;"></div>
+      </div>
+    `);
+  }
+
+  async function submitReport() {
+    const type = document.getElementById('issueType').value;
+    const desc = document.getElementById('issueDesc').value.trim();
+    if (!desc) return;
+    const { error } = await supabaseClient.from('reports').insert([{
+      user_id: currentUser.id,
+      email: currentUser.email,
+      type,
+      description: desc
+    }]);
+    if (error) {
+      showMsg('reportMsg', 'Something went wrong. Try again.', false);
+    } else {
+      showMsg('reportMsg', 'Report sent. Thank you, we will look into it.', true);
+      document.getElementById('issueDesc').value = '';
+    }
+  }
+
+  // ── SETTINGS ──
   function showSettings() {
     const isDark = document.body.getAttribute('data-theme') !== 'light';
     render(`
@@ -1412,7 +1401,7 @@ async function submitReport() {
           </div>
           <div style="border-top:1px solid #1e1e1e; padding-top:20px; margin-bottom:20px;">
             <div style="font-size:13px; color:#555; font-weight:600; letter-spacing:0.08em; text-transform:uppercase; margin-bottom:8px;">Change Password</div>
-            <input type="password" id="newPassword" class="auth-input" placeholder="New password (min 6 characters)" style="margin-bottom:8px;">
+            <input type="password" id="newPassword" class="auth-input" placeholder="New password (min 8 characters)" style="margin-bottom:8px;">
             <input type="password" id="confirmPassword" class="auth-input" placeholder="Confirm new password" style="margin-bottom:8px;">
             <button class="btn-primary" style="padding:12px; font-size:14px;" onclick="changePassword()">Update password</button>
           </div>
@@ -1444,80 +1433,35 @@ async function submitReport() {
 
   async function changeEmail() {
     const newEmail = document.getElementById('newEmail').value.trim();
-    const msg = document.getElementById('settingsMsg');
     if (!newEmail) return;
-    const { error } = await supabaseClient
-      .from('users')
-      .update({ email: newEmail })
-      .eq('id', currentUser.id);
-    if (error) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(192,57,43,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.textContent = error.message;
-    } else {
-      userProfile.email = newEmail;
-      localStorage.setItem('stackd_user', JSON.stringify(userProfile));
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(39,174,96,0.1)';
-      msg.style.color = '#27ae60';
-      msg.textContent = 'Email updated successfully.';
-    }
+    const { error } = await supabaseClient.auth.updateUser({ email: newEmail });
+    if (error) { showMsg('settingsMsg', error.message, false); return; }
+    showMsg('settingsMsg', 'Check your inbox. Click the confirmation link to finish changing your email.', true);
   }
 
   async function changePassword() {
-    const newPassword = document.getElementById('newPassword').value.trim();
-    const confirmPassword = document.getElementById('confirmPassword').value.trim();
-    const msg = document.getElementById('settingsMsg');
+    const newPassword = document.getElementById('newPassword').value;
+    const confirmPassword = document.getElementById('confirmPassword').value;
     if (!newPassword || !confirmPassword) return;
-    if (newPassword.length < 6) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(192,57,43,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.textContent = 'Password must be at least 6 characters.';
-      return;
-    }
-    if (newPassword !== confirmPassword) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(192,57,43,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.textContent = 'Passwords do not match.';
-      return;
-    }
-    const { error } = await supabaseClient
-      .from('users')
-      .update({ user_password: newPassword })
-      .eq('id', currentUser.id);
-    if (error) {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(192,57,43,0.1)';
-      msg.style.color = '#e74c3c';
-      msg.textContent = error.message;
-    } else {
-      msg.style.display = 'block';
-      msg.style.background = 'rgba(39,174,96,0.1)';
-      msg.style.color = '#27ae60';
-      msg.textContent = 'Password updated successfully.';
-    }
+    if (newPassword.length < 8) { showMsg('settingsMsg', 'Password must be at least 8 characters.', false); return; }
+    if (newPassword !== confirmPassword) { showMsg('settingsMsg', 'Passwords do not match.', false); return; }
+    const { error } = await supabaseClient.auth.updateUser({ password: newPassword });
+    if (error) { showMsg('settingsMsg', error.message, false); return; }
+    showMsg('settingsMsg', 'Password updated successfully.', true);
   }
 
   async function deleteAccount() {
-    const confirmed = window.confirm('Are you sure you want to delete your account? This cannot be undone.');
+    const confirmed = window.confirm('Are you sure you want to delete your account? This also cancels your subscription and cannot be undone.');
     if (!confirmed) return;
-    await supabaseClient
-      .from('users')
-      .delete()
-      .eq('id', currentUser.id);
-    localStorage.removeItem('stackd_user');
+    const data = await authFetch('/api/delete-account', {});
+    if (!data.success) { showMsg('settingsMsg', data.error || 'Could not delete account.', false); return; }
+    await supabaseClient.auth.signOut();
     currentUser = null;
     userProfile = null;
     showAuth('signup');
   }
 
-  function render(html) {
-    document.getElementById('mainContent').innerHTML = html;
-  }
-
+  // ── DAILY CHECK-IN ──
   function showCheckinHome() {
     render(`
       <div class="checkin-screen">
@@ -1536,9 +1480,8 @@ async function submitReport() {
   ];
 
   function startCheckin() {
-    const lastCheckin = userProfile.last_checkin;
     const today = new Date().toDateString();
-    if (lastCheckin === today) {
+    if (userProfile.last_checkin === today) {
       render(`
         <div class="checkin-screen">
           <span class="screen-tag">Daily Check-in</span>
@@ -1561,11 +1504,11 @@ async function submitReport() {
         <div class="progress-bar" style="width:100%">
           <div class="progress-fill" id="pb" style="width:0%"></div>
         </div>
-        <span class="screen-tag">Question ${i+1} of ${checkinQuestions.length}</span>
+        <span class="screen-tag">Question ${i + 1} of ${checkinQuestions.length}</span>
         <h1 class="screen-title small">${q.label}</h1>
         <textarea id="cans" spellcheck="false" placeholder="${q.ph}"></textarea>
         <button class="btn-primary" onclick="saveCheckinAnswer(${i})">Continue</button>
-        ${i > 0 ? `<button class="btn-ghost" onclick="showCheckinQuestion(${i-1})">Back</button>` : ''}
+        ${i > 0 ? `<button class="btn-ghost" onclick="showCheckinQuestion(${i - 1})">Back</button>` : ''}
       </div>
     `);
     setTimeout(() => { document.getElementById('pb').style.width = pct + '%'; }, 50);
@@ -1593,32 +1536,24 @@ async function submitReport() {
     const context = `Project: ${userProfile.project}\nGoal: ${userProfile.goal}\nObstacle: ${userProfile.obstacle}`;
     const checkin = `Yesterday: ${checkinAnswers.yesterday}\nBlocked by: ${checkinAnswers.blocked}\nOne thing today: ${checkinAnswers.today}`;
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context, checkin })
-      });
-      const data = await response.json();
+      const data = await authFetch('/api/coach', { context, checkin });
       if (data.error) throw new Error(data.error);
+
       streak++;
       const today = new Date().toDateString();
-      await supabaseClient
-        .from('users')
-        .update({ streak, last_checkin: today })
-        .eq('id', currentUser.id);
-      await supabaseClient
-        .from('checkins')
-        .insert([{
-          user_id: currentUser.id,
-          yesterday: checkinAnswers.yesterday,
-          blocked: checkinAnswers.blocked,
-          today: checkinAnswers.today,
-          coach_response: data.reply
-        }]);
+      await supabaseClient.from('profiles')
+        .update({ streak, last_checkin: today }).eq('id', currentUser.id);
+      await supabaseClient.from('checkins').insert([{
+        user_id: currentUser.id,
+        yesterday: checkinAnswers.yesterday,
+        blocked: checkinAnswers.blocked,
+        today: checkinAnswers.today,
+        coach_response: data.reply
+      }]);
       userProfile.streak = streak;
       userProfile.last_checkin = today;
-      localStorage.setItem('stackd_user', JSON.stringify(userProfile));
       document.getElementById('streakNumber').textContent = streak;
+
       render(`
         <div class="checkin-screen">
           <span class="screen-tag">Your coach says</span>
@@ -1628,28 +1563,18 @@ async function submitReport() {
           <button class="btn-ghost" onclick="showCheckinHome()">Back to home</button>
         </div>
       `);
-    } catch(e) {
+    } catch (e) {
       render(`
         <div class="checkin-screen">
           <h1 class="screen-title small">Something went wrong.</h1>
-          <p class="screen-sub">${e.message}</p>
+          <p class="screen-sub">${esc(e.message)}</p>
           <button class="btn-primary" onclick="startCheckin()">Try again</button>
         </div>
       `);
     }
   }
 
-function formatResponse(text) {
-    return text
-      .replace(/#{1,6}\s*/g, '')
-      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
-      .replace(/\*(.*?)\*/g, '$1')
-      .replace(/\n\n/g, '</p><p>')
-      .replace(/\n/g, '<br>')
-      .replace(/^/, '<p>')
-      .replace(/$/, '</p>');
-  }
-
+  // ── 24/7 COACH ──
   function showCoach() {
     render(`
       <div class="chat-screen">
@@ -1661,7 +1586,7 @@ function formatResponse(text) {
           <div class="chat-messages" id="chatMessages">
             <div class="chat-message">
               <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
-              <div class="chat-bubble">Hey! I know your project and goals. Ask me anything — stuck on a decision, need advice, or just want to think something through. I am here.</div>
+              <div class="chat-bubble">Hey! I know your project and goals. Ask me anything. Stuck on a decision, need advice, or just want to think something through. I am here.</div>
             </div>
           </div>
           <div class="chat-input-area">
@@ -1689,7 +1614,7 @@ function formatResponse(text) {
     messages.innerHTML += `
       <div class="chat-message user">
         <div class="chat-avatar">Y</div>
-        <div class="chat-bubble">${msg}</div>
+        <div class="chat-bubble">${esc(msg)}</div>
       </div>
       <div class="chat-message" id="typingIndicator">
         <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
@@ -1699,20 +1624,13 @@ function formatResponse(text) {
     messages.scrollTop = messages.scrollHeight;
     const context = `Project: ${userProfile.project}\nGoal: ${userProfile.goal}`;
     try {
-      const response = await fetch(API_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ context, checkin: msg })
-      });
-      const data = await response.json();
+      const data = await authFetch('/api/coach', { context, checkin: msg });
       if (data.error) throw new Error(data.error);
-      await supabaseClient
-        .from('chats')
-        .insert([{
-          user_id: currentUser.id,
-          message: msg,
-          response: data.reply
-        }]);
+      await supabaseClient.from('chats').insert([{
+        user_id: currentUser.id,
+        message: msg,
+        response: data.reply
+      }]);
       document.getElementById('typingIndicator').outerHTML = `
         <div class="chat-message">
           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px; letter-spacing:-0.03em;">S<span style="color:#E9A84C;">d</span></div>
@@ -1720,26 +1638,27 @@ function formatResponse(text) {
         </div>
       `;
       messages.scrollTop = messages.scrollHeight;
-    } catch(e) {
+    } catch (e) {
       document.getElementById('typingIndicator').outerHTML = `
         <div class="chat-message">
           <div class="chat-avatar" style="background:#fff; color:#0c0c0c; font-weight:800; font-size:13px;">Sd</div>
-          <div class="chat-bubble" style="color:#c0392b;">Something went wrong. Try again.</div>
+          <div class="chat-bubble" style="color:#c0392b;">${esc(e.message || 'Something went wrong. Try again.')}</div>
         </div>
       `;
     }
   }
 
+  // ── PROGRESS ──
   function showProgress() {
     const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
     const today = new Date().getDay();
-const mondayIndex = today === 0 ? 6 : today - 1;
-const daysHtml = days.map((d, i) => `
-  <div class="week-day">
-    <div class="week-dot ${i === mondayIndex ? 'today' : i < mondayIndex && streak > 0 ? 'done' : ''}"></div>
-    <span class="week-day-label">${d}</span>
-  </div>
-`).join('');
+    const mondayIndex = today === 0 ? 6 : today - 1;
+    const daysHtml = days.map((d, i) => `
+      <div class="week-day">
+        <div class="week-dot ${i === mondayIndex ? 'today' : i < mondayIndex && streak > 0 ? 'done' : ''}"></div>
+        <span class="week-day-label">${d}</span>
+      </div>
+    `).join('');
     render(`
       <div class="progress-screen">
         <span class="screen-tag" style="display:block; margin-bottom:12px;">Progress Tracker</span>
@@ -1761,21 +1680,6 @@ const daysHtml = days.map((d, i) => `
         <div class="section-block">
           <div class="block-title">This week</div>
           <div class="week-dots">${daysHtml}</div>
-        </div>
-        <div class="section-block">
-          <div class="block-title">Recent check-ins</div>
-          <div class="history-item">
-            <span class="history-date">Today</span>
-            <span class="history-badge">✓ Completed</span>
-          </div>
-          <div class="history-item">
-            <span class="history-date">Yesterday</span>
-            <span class="history-badge">✓ Completed</span>
-          </div>
-          <div class="history-item">
-            <span class="history-date">2 days ago</span>
-            <span class="history-badge">✓ Completed</span>
-          </div>
         </div>
       </div>
     `);

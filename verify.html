@@ -77,12 +77,15 @@
       const token = params.get('token');
 
       if (!token) {
+       localStorage.setItem('stackd_user', JSON.stringify(data));
         document.getElementById('box').innerHTML = `
-          <span class="logo">Stack<span>d</span></span>
-          <h2>Invalid link.</h2>
-          <p>This verification link is invalid or has expired.</p>
-          <a href="app.html" class="btn">Go to app</a>
-        `;
+        <span class="logo">Stack<span>d</span></span>
+        <h2>Email verified!</h2>
+        <p>Your account is now active. Taking you to setup...</p>
+      `;
+        setTimeout(() => {
+          window.location.href = 'app.html';
+        }, 1500);
         return;
       }
 

@@ -1140,6 +1140,11 @@ async function sendResetEmail() {
   }
 
   function showApp() {
+    if (!userProfile.subscribed) {
+      showPricing();
+      return;
+    }
+    streak = userProfile.streak || 0;
     streak = userProfile.streak || 0;
     document.getElementById('appBody').innerHTML = `
       <div class="top-nav">

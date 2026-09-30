@@ -205,6 +205,20 @@ const server = require('http').createServer((req, res) => {
         if (error) return send(res, 500, { error: 'Could not delete account.' });
         return send(res, 200, { success: true });
       }
+            // Free beta activation
+      if (req.method === 'POST' && req.url === '/api/start-beta') {
+        const user = await getAuthUser(req);
+        if (!user) return send(res, 401, { error: 'Please sign in again.' });
+        if (process.env.FREE_BETA !== 'true') return send(res, 403, { error: 'The free beta is closed.' });
+
+        const { count } = await supabase
+          .from('profiles').select('id', { count: 'exact', head: true }).eq('subscribed', true);
+        if (count >= 100) return send(res, 403, { error: 'The free beta is full.' });
+
+        const { error } = await supabase.from('profiles').update({ subscribed: true }).eq('id', user.id);
+        if (error) return send(res, 500, { error: 'Could not activate.' });
+        return send(res, 200, { success: true });
+      }
 
       send(res, 404, { error: 'Not found' });
     } catch (e) {

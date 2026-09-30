@@ -72,20 +72,17 @@
     const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imprbnhyc3p4cGppem5waGprZmJrIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODQ0NDk3NzMsImV4cCI6MjEwMDAyNTc3M30.jp0l_S99XqzBb4SnYeRCFZtWSdLo6eyQEWna7prs2Vw';
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-    async function verify() {
+   async function verify() {
       const params = new URLSearchParams(window.location.search);
       const token = params.get('token');
 
       if (!token) {
-       localStorage.setItem('stackd_user', JSON.stringify(data));
         document.getElementById('box').innerHTML = `
-        <span class="logo">Stack<span>d</span></span>
-        <h2>Email verified!</h2>
-        <p>Your account is now active. Taking you to setup...</p>
-      `;
-        setTimeout(() => {
-          window.location.href = 'app.html';
-        }, 1500);
+          <span class="logo">Stack<span>d</span></span>
+          <h2>Invalid link.</h2>
+          <p>This verification link is invalid or has expired.</p>
+          <a href="app.html" class="btn">Go to app</a>
+        `;
         return;
       }
 
@@ -106,12 +103,15 @@
         return;
       }
 
+      localStorage.setItem('stackd_user', JSON.stringify(data));
       document.getElementById('box').innerHTML = `
         <span class="logo">Stack<span>d</span></span>
         <h2>Email verified!</h2>
-        <p>Your account is now active. Start building.</p>
-        <a href="app.html" class="btn">Go to app</a>
+        <p>Your account is now active. Taking you to setup...</p>
       `;
+      setTimeout(() => {
+        window.location.href = 'app.html';
+      }, 1500);
     }
 
     verify();

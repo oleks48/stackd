@@ -839,6 +839,7 @@
     localStorage.removeItem('stackd_user'); // old homemade login data
 
     const paid = new URLSearchParams(window.location.search).get('payment') === 'success';
+    const wantsSignin = new URLSearchParams(window.location.search).get('mode') === 'signin';
     const hash = window.location.hash;
     let linkError = null;
     if (hash.includes('error_description')) {
@@ -848,8 +849,8 @@
     const { data: { session } } = await supabaseClient.auth.getSession();
     history.replaceState(null, '', window.location.pathname);
 
-    if (!session) {
-      showAuth(linkError ? 'signin' : 'signup', linkError);
+        if (!session) {
+      showAuth(linkError || wantsSignin ? 'signin' : 'signup', linkError);
       return;
     }
 

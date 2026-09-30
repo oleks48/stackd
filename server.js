@@ -196,6 +196,58 @@ const server = require('http').createServer(async (req, res) => {
         res.end(JSON.stringify({ url: session.url }));
         return;
       }
+            // Stripe webhook
+      if (req.method === 'POST' && req.url === '/api/stripe-webhook') {
+        const signature = req.headers['stripe-signature'];
+        
+        try {
+          // Verify webhook signature manually
+          const crypto = require('crypto');
+          const secret = process.env.STRIPE_WEBHOOK_SECRET;
+          const payload = body;
+          
+          const parts = signature.split(',');
+          const timestamp = parts.find(p => p.startsWith('t=')).substring(2);
+          const sigHash = parts.find(p => p.startsWith('v1=')).substring(3);
+          
+          const signedPayload = `${timestamp}.${payload}`;
+          const expectedSig = crypto.createHmac('sha256', secret).update(signedPayload).digest('hex');
+          
+          if (expectedSig !== sigHash) {
+            res.writeHead(400);
+            res.end(JSON.stringify({ error: 'Invalid signature' }));
+            return;
+          }
+          
+          const event = JSON.parse(payload);
+          
+          if (event.type === 'checkout.session.completed') {
+            const session = event.data.object;
+            const userId = session.metadata.user_id;
+            const subscriptionId = session.subscription;
+            
+            if (userId) {
+              const { createClient } = require('@supabase/supabase-js');
+              const supabase = createClient(
+                process.env.SUPABASE_URL,
+                process.env.SUPABASE_SERVICE_KEY
+              );
+              
+              await supabase
+                .from('users')
+                .update({ subscribed: true, subscription_id: subscriptionId })
+                .eq('id', userId);
+            }
+          }
+          
+          res.writeHead(200);
+          res.end(JSON.stringify({ received: true }));
+        } catch(e) {
+          res.writeHead(400);
+          res.end(JSON.stringify({ error: e.message }));
+        }
+        return;
+      }
 
       res.writeHead(404);
       res.end(JSON.stringify({ error: 'Not found' }));

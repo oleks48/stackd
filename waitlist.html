@@ -273,11 +273,9 @@
     const supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
     async function loadCount() {
-      const { count } = await supabaseClient
-        .from('waitlist')
-        .select('*', { count: 'exact', head: true });
-      if (count) document.getElementById('waitlistCount').textContent = count;
-    }
+  const { data } = await supabaseClient.rpc('waitlist_count');
+  if (data) document.getElementById('waitlistCount').textContent = data;
+}
 
     async function joinWaitlist() {
       const email = document.getElementById('waitlistEmail').value.trim();

@@ -8,7 +8,7 @@ const supabase = createClient(process.env.SUPABASE_URL, process.env.SUPABASE_SER
 
 const ALLOWED_ORIGINS = ['https://stackdcoach.com', 'https://www.stackdcoach.com'];
 // Test-mode price IDs. Swap for live ones when you go live.
-const ALLOWED_PRICES = ['price_1UL8ERLXx05PYhrDXYZuoMMt', 'price_1UL8FbLXx05PYhrDKTUOWWS0'];
+const ALLOWED_PRICES = ['price_1ULnnALk4oSCTaKjdBMAVw1U', 'price_1ULnnALk4oSCTaKjsElShZNR'];
 
 function httpsJson(options, payload) {
   return new Promise((resolve, reject) => {
